@@ -1,0 +1,22 @@
+{% extends "ponsol2web/base_generic.html" %}
+{% block title %} Detail {% endblock %}
+
+{% block content_title %} Result Detail{% endblock %}
+{% block content %}
+    {% if record.solubility %}
+        <div>Result: {{ record.solubility }}</div>
+    {% else %}
+        <div>It is being calculated...</div>
+    {% endif %}
+
+    <table id="detail">
+        <tr>
+            <td class="title"><span>Fasta Sequence</span></td>
+            <td><span>{{ record.name }}</span><br><span>{{ record.seq }}</span></td>
+        </tr>
+        <tr>
+            <td class="title"><span>AAS</span></td>
+            <td>{{ record.aa }}</td>
+        </tr>
+    </table>
+{% endblock %}

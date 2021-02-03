@@ -1,0 +1,39 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Home {% endblock %}</title>
+    <link rel="stylesheet" type="text/css" href="{% static "ponsol2web/button.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "ponsol2web/base_style.css" %}">
+</head>
+<body>
+<div id="navigator" class="left main_color">
+    <div>
+        <a href="{% url "ponsol2:index" %}">
+            <img id="logo" src="{% static "ponsol2web/img/ponsol2_logo.png" %}">
+        </a>
+    </div>
+    <ul>
+        <li class="index"><a class="ttlink" href="{% url "ponsol2:index" %}">HOME</a></li>
+        <li class="index"><a class="ttlink" href="{% url "ponsol2:input" %}">PREDICT</a></li>
+        <li class="index"><a class="ttlink" href="{% url "ponsol2:result" %}">RESULT</a></li>
+        <li class="index"><a class="ttlink" href="{% url "ponsol2:about" %}">ABOUT</a></li>
+    </ul>
+</div>
+
+<div id="content" class="right">
+    <div id="title">
+
+        <h1>{% block content_title %}Wecome to Pon-Sol2! {% endblock %}</h1>
+        <p>{% block content_title_describe %} {% endblock %}</p>
+    </div>
+    {% block content %}
+        {#        <div><a href="{% url "ponsol2:input" %}"><span class="button main_color">Start</span> </a></div>#}
+        <a class="ttlink" href="{% url "ponsol2:input" %}">
+            <div class="main_color button button-glow button-rounded button-raised button-primary">Start</div>
+        </a>
+    {% endblock %}
+</div>
+</body>
+</html>
