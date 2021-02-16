@@ -7,14 +7,17 @@ Fix the Problem, Not the Blame.
 '''
 
 from django.urls import path
+from django.views.generic import TemplateView
+
 from . import views
 
 app_name = "ponsol2"
 urlpatterns = [
     path("", views.index, name="index"),
     path("input/", views.input_seq_aa, name="input"),  # 输入数据
-    path("predict/", views.predict, name="predict"),  # 预测
+    path("predict", views.predict, name="predict"),  # 预测
     path("result/", views.get_result, name="result"),
     path("detail/<int:record_id>", views.get_detail, name="detail"),
     path("about/", views.get_about, name="about"),
+    path("disclaimer/", TemplateView.as_view(template_name="ponsol2web/disclaimer.html"), name="disclaimer"),
 ]
