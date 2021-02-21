@@ -1,0 +1,19 @@
+{% extends "ponsol2web/base_generic.html" %}
+{% block title %} Detail {% endblock %}
+
+{% block content_title %} Result Detail{% endblock %}
+{% block content %}
+    <ul>
+        <li>{{ task.ip }}</li>
+        <li>{{ task.mail }}</li>
+        <li>{{ task.start_time }}</li>
+        <li>{{ task.finish_time }}</li>
+        <li>{{ task.status }}</li>
+        <li>{{ task.error_msg }}</li>
+    </ul>
+    <ul>
+        {% for record in task.record_set.all %}
+            <li><a href="{% url "ponsol2:record-detail" record.id %}">{{ record }}</a></li>
+        {% endfor %}
+    </ul>
+{% endblock %}

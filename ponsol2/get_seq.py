@@ -6,6 +6,17 @@ import re
 a_list = ('A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y')
 
 
+def get_seq_by_id(ids, type):
+    if type == "gi":
+        return get_seq_from_gi(ids)
+    elif type == "ensembl id":
+        return get_seq_from_ensembl(ids)
+    elif type == "uniprot id":
+        return get_seq_from_uniprot(ids)
+    else:
+        return None
+
+
 def get_seq_from_ensembl(ensembl_id):
     """
     将 ensembl id 转化为 uniprot id, 然后通过 uniprot id 获取序列
@@ -33,13 +44,15 @@ def get_seq_from_uniprot(uniprot_id):
         raise RuntimeError("Can't get seq by uniprot id. Please check id./n" + traceback.format_exc())
     return name, seq
 
+
 def get_seq_from_gi(gi):
     """
     通过 genebank 获取序列
     :param gb_id: genebank id
     :return:
     """
-    url = "https://www.ncbi.nlm.nih.gov/sviewer/viewer.fcgi?id={}&db=protein&report=fasta&retmode=text&withmarkup=on&tool=portal&log$=seqview&maxdownloadsize=1000000".format(gi.upper())
+    url = "https://www.ncbi.nlm.nih.gov/sviewer/viewer.fcgi?id={}&db=protein&report=fasta&retmode=text&withmarkup=on&tool=portal&log$=seqview&maxdownloadsize=1000000".format(
+        gi.upper())
     try:
         response = requests.get(url)
         faste = response.text

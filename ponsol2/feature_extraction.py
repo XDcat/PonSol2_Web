@@ -29,7 +29,7 @@ def check_aa(seq, aa):
     if aai < 1 or aai > len(seq):
         raise RuntimeError("aa error, index of aa is invalid.")
     if seq[aai - 1] != aaf:
-        raise RuntimeError("aa error, seq[index -1] = {}, but origin of aa = {}".format(seq[aai - 1], aaf))
+        raise RuntimeError("aa error, seq[{}] = {}, but origin of aa = {}".format(aai, seq[aai - 1], aaf))
 
     return seq, aaf, aat, aai
 

@@ -8,13 +8,7 @@
     <link rel="stylesheet" type="text/css" href="{% static "ponsol2web/button.css" %}">
     <link rel="stylesheet" type="text/css" href="{% static "ponsol2web/base_style.css" %}">
     <!-- 引入 Bootstrap -->
-    <link href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
-    <!-- HTML5 Shiv 和 Respond.js 用于让 IE8 支持 HTML5元素和媒体查询 -->
-    <!-- 注意： 如果通过 file://  引入 Respond.js 文件，则该文件无法起效果 -->
-    <!--[if lt IE 9]>
-    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-    <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
-    <![endif]-->
+    <link rel="stylesheet" type="text/css" href="{% static "ponsol2web/css/bootstrap.min.css" %}">
 
 </head>
 <body>
@@ -27,7 +21,7 @@
     <ul>
         <li class="index"><a class="ttlink" href="{% url "ponsol2:index" %}">HOME</a></li>
         <li class="index"><a class="ttlink" href="{% url "ponsol2:input" %}">PREDICT</a></li>
-        <li class="index"><a class="ttlink" href="{% url "ponsol2:result" %}">RESULT</a></li>
+        <li class="index"><a class="ttlink" href="{% url "ponsol2:task-list" %}">RESULT</a></li>
         <li class="index"><a class="ttlink" href="{% url "ponsol2:disclaimer" %}">DISCLAIMER</a></li>
         <li class="index"><a class="ttlink" href="{% url "ponsol2:about" %}">ABOUT</a></li>
     </ul>
@@ -40,7 +34,6 @@
         <p>{% block content_title_describe %} {% endblock %}</p>
     </div>
     {% block content %}
-        {#        <div><a href="{% url "ponsol2:input" %}"><span class="button main_color">Start</span> </a></div>#}
         <a class="ttlink" href="{% url "ponsol2:input" %}">
             <div class="main_color button button-glow button-rounded button-raised button-primary">Start</div>
         </a>
@@ -48,9 +41,9 @@
 </div>
 
 
-<!-- jQuery (Bootstrap 的 JavaScript 插件需要引入 jQuery) -->
-<script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
-<!-- 包括所有已编译的插件 -->
-<script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </body>
+<!-- jQuery (Bootstrap 的 JavaScript 插件需要引入 jQuery) -->
+<script src="{% static "ponsol2web/js/jquery.min.js" %}"></script>
+<!-- 包括所有已编译的插件 -->
+<script src="{% static "ponsol2web/js/bootstrap.min.js" %}"></script>
 </html>

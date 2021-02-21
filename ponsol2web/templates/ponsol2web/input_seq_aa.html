@@ -1,13 +1,11 @@
 {% extends "ponsol2web/base_generic.html" %}
-{% block title %} Predict {% endblock %}
-{% block content_title %} Pon-Sol2 Predictor {% endblock %}
-{% block content %}
-    {% if error_message %}
-        <p><strong>{{ error_message }}</strong></p>
-    {% endif %}
+{% block content_title_describe %}
+    Pon-Sol2 a wonderful method to predict the change of solubility for protein by amino acid substitutions (AASs).
+{% endblock %}
 
+{% block content %}
     <div class="form">
-        <form id="ponsol_form" action="{% url "ponsol2:predict" %}" method="post">
+        <form id="ponsol_form" action="{% url "ponsol2:predict-seq" %}" method="post">
             {% csrf_token %}
             <div>
                 <label for="seq">Fasta Sequence:</label>
@@ -15,7 +13,8 @@
                 <textarea name="seq" id="seq"></textarea>
             </div>
             <div>
-                <label class="right-align" for="aa">AAS:</label><input type="text" name="aa" id="aa">
+                <label class="right-align" for="aa">AAS:</label>
+                <textarea type="text" name="aa" id="aa"></textarea>
             </div>
             <div>
                 <label class="right-align" for="mail">E-mail:</label><input type="email" name="mail" id="mail">
@@ -28,12 +27,4 @@
             {% endif %}
         </form>
     </div>
-    <script type="text/javascript">
-         function set_example(){
-             var seq_input = document.getElementById("seq")
-             seq_input.value = ">AAI14500.1 Tryptophan hydroxylase 2 [Homo sapiens]\nMQPAMMMFSSKYWARRGFSLDSAVPEEHQLLGSSTLNKPNSGKNDDKGNKGSNKREAATESGKTAVVFSLKNEVGGLVKALRLFQEKRVNMVHIESRKSRRRSSEVEIFVDCECGKTEFNELIQLLKFQTTIVTLNPPENIWTEEEELEDVPWFPRKISELDKCSHRVLMYGSELDADHPGFKDNVYRQRRKYFVDVAMGYKYGQPIPRVEYTEEETKTWGVVFRELSKLYPTHACREYLKNFPLLTKYCGYREDNVPQLEDVSMFLKERSGFTVRPVAGYLSPRDFLAGLAYRVFHCTQYIRHGSDPLYTPEPDTCHELLGHVPLLADPKFAQFSQEIGLASLGASDEDVQKLATCYFFTIEFGLCKQEGQLRAYGAGLLSSIGELKHALSDKACVKAFDPKTTCLQECLITTFQEAYFVSESFEEAKEKMRDFAKSITRPFSVYFNPYTQSIEILKDTRSIENVVQDLRSDLNTVCDALNKMNQYLGI"
-             var seq_aa = document.getElementById("aa")
-             seq_aa.value = "Q2A"
-         }
-    </script>
 {% endblock %}

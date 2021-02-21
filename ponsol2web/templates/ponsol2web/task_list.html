@@ -1,0 +1,36 @@
+{% extends "ponsol2web/base_generic.html" %}
+{% block title %}
+    Result
+{% endblock %}
+
+{% block content_title %} Pon-Sol2 Result{% endblock %}
+{% block content_title_describe %}
+    The results are listed according to your IP.
+{% endblock %}
+{% block content %}
+    {% if tasks %}
+        <div id="result_list">
+            <table>
+                <tr>
+                    <th>#</th>
+                    <th>Status</th>
+                    <th>Start Time</th>
+                    <th>End Time</th>
+                    <th>Message</th>
+                    {% for task in tasks %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td><a href="{% url "ponsol2:task-detail" task.id %}">{{ task.status }}</a></td>
+                            <td>{{ task.start_time }}</td>
+                            <td>{{ task.finish_time }}</td>
+                            <td>{{ task.error_msg }}</td>
+                        </tr>
+                    {% endfor %}
+            </table>
+
+        </div>
+    {% else %}
+        <p> You have not commit any task.</p>
+    {% endif %}
+
+{% endblock %}

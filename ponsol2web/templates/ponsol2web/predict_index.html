@@ -1,0 +1,11 @@
+{% extends "ponsol2web/base_generic.html" %}
+{% block content_title_describe %}
+    Pon-Sol2 a wonderful method to predict the change of solubility for protein by amino acid substitutions (AASs).
+{% endblock %}
+
+{% block content %}
+    <ol>
+        <li><a href="{% url "ponsol2:seq-predict" %}">Sequence</a></li>
+        <li><a href="{% url "ponsol2:seq-id" %}">ID</a></li>
+    </ol>
+{% endblock %}

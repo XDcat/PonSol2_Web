@@ -1,0 +1,14 @@
+{% extends "ponsol2web/base_generic.html" %}
+{% block title %} Detail {% endblock %}
+
+{% block content_title %} Result Detail{% endblock %}
+{% block content %}
+    <ul>
+        <li>{{ record.name }}</li>
+        <li>{{ record.seq }}</li>
+        <li>{{ record.aa }}</li>
+        <li>{{ record.solubility }}</li>
+        <li>{{ record.status }}</li>
+        <li>{{ record.error_msg }}</li>
+    </ul>
+{% endblock %}
