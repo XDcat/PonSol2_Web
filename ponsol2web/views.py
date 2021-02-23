@@ -12,6 +12,7 @@ from ponsol2 import get_seq
 from ponsol2 import model as PonsolClassifier
 from .ThreadPool import global_thred_pool
 from .models import Record, Task
+from . import mail_utils
 
 log = logging.getLogger("ponsol2_web.views")
 MAX_FILE_SIZE = 20 * 1024 * 8  # 20MB
@@ -243,11 +244,16 @@ def predict(task_id, name, seq, aa):
             record.status = "error"
             record.error_msg = str(e)
             record.save()
-
     task.status = "finished"
     task.finish_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     task.save()
     log.debug("task(id=%s) is finished!", task_id)
+    try:
+        mail_utils.send_result(task.id)
+        log.debug(f"Send email successfully. (task id = {task.id})")
+    except Exception as e:
+        log.debug(f"Failed to send mail.(task id ={task.id})")
+        log.debug(traceback.format_exc())
 
 
 def check_seq_input(seq, aa):

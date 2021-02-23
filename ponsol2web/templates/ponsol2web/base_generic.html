@@ -8,7 +8,7 @@
     <title>{% block title %}Home {% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="{% static "ponsol2web/button.css" %}">
-        <link rel="stylesheet" type="text/css" href="{% static "ponsol2web/base_style.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "ponsol2web/base_style.css" %}">
     <!-- Bootstrap -->
     <link rel="stylesheet" type="text/css" href="{% static "ponsol2web/css/bootstrap.min.css" %}">
     <!-- Custom styles for this template -->
@@ -21,13 +21,13 @@
     <!-- The justified navigation menu is meant for single line per list item.
          Multiple lines will require custom code not provided by Bootstrap. -->
     <div class="masthead" style="margin-bottom: 40px;">
-        <h3>
-            <a class="navbar-brand" href="{% url "ponsol2:index" %}">
-                <img alt="PON-Sol2" style="max-width:100px;margin-top:-7px;"
-                     src="{% static "ponsol2web/img/ponsol2_logo.png" %}">
-            </a>
-        </h3>
         <nav>
+            <div class="navbar-header">
+                <a href="{% url "ponsol2:index" %}" class="navbar-left">
+                    <img alt="PON-Sol2" style="width:150px; max-height: 52px; padding: 5px;"
+                         src="{% static "ponsol2web/img/ponsol2_logo.png" %}">
+                </a>
+            </div>
             <ul class="nav nav-justified">
                 <li><a href="{% url "ponsol2:index" %}">Home</a></li>
                 <li><a href="{% url "ponsol2:input" %}">Predict</a></li>
