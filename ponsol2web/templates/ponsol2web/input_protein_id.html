@@ -1,41 +1,72 @@
 {% extends "ponsol2web/base_generic.html" %}
 {% block title %} Predict {% endblock %}
-{% block content_title %} Pon-Sol2 Predictor {% endblock %}
 {% block content %}
-    {% if error_message %}
-        <p><strong>{{ error_message }}</strong></p>
-    {% endif %}
-
-    <div class="form">
-        <form id="ponsol_form" action="{% url "ponsol2:predict-ids" %}" method="post">
+    <div class="page-header">
+        <h1>Input Protein Ids<small></small></h1>
+    </div>
+    <div class="form row">
+        {% if error_msg %}
+            <div class="col-lg-12">
+                <div class="alert alert-warning" role="alert">{{ error_msg }}</div>
+            </div>
+        {% endif %}
+        <form id="ponsol_form" action="{% url "ponsol2:predict-ids" %}" method="post" enctype="multipart/form-data">
             {% csrf_token %}
-            <div>
-                <label for="seq">Input:</label>
-                <a id="exaple_input" href="javascript:set_example()">Example</a>
-                <textarea name="seq" id="seq"></textarea>
+            <div class="form-group col-md-12">
+                <label for="seq">IDs and AASs</label>
+                <a id="example_input" href="javascript:set_example()">Example</a>
+                <div class="fix-vertical-center">
+                    <div style="padding-left: 0px" class="col-md-8">
+                        <textarea class="form-control" rows="10" name="seq" id="seq"></textarea>
+                    </div>
+                    <div class="col-md-1">
+                        <strong>
+                            OR
+                        </strong>
+                    </div>
+                    <div class="col-md-3" style="margin-top: auto; margin-bottom: auto;">
+                        <label for="sequenceInputFile">Update File</label>
+                        <input type="file" id="sequenceInputFile" name="sequenceInputFile">
+                    </div>
+                </div>
             </div>
             <div>
-                <div><input type="radio" name="type" value="gi"> <span>GI</span></div>
-                <div><input type="radio" name="type" value="ensembl id"> <span>Ensemble ID</span></div>
-                <div><input type="radio" name="type" value="uniprot id"> <span>UniProt</span></div>
+
+                <div class="col-lg-8">
+                    <label> ID Type </label>
+                </div>
+                <div class="col-lg-8">
+                    <label class="radio-inline">
+                        <input type="radio" name="type" id="inlineRadio1" value="gi">GI
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="type" id="inlineRadio2" value="ensembl id">Ensemble ID
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="type" id="inlineRadio3" value="uniprot id">UniProt </label>
+                </div>
             </div>
-            <div>
-                <label class="right-align" for="mail">E-mail:</label><input type="email" name="mail" id="mail">
+            <div class="form-group col-md-12">
+                <div class="col-md-8" style="padding-left: 0px">
+                    <label class="right-align" for="mail">E-mail</label>
+                    <input type="email" class="form-control" id="mail" placeholder="Email">
+                </div>
             </div>
-            <div>
-                <input type="submit" value="submit">
+            <div class="col-md-8">
+                <input class="btn btn-primary text-capitalize btn-block" type="submit" value="start predict">
             </div>
             {% if record_count %}
-                <div class="note">Number of calculations: {{ record_count }}</div>
+                <div class="text-right col-md-8" style="margin-top: 20px">Number of
+                    calculations: {{ record_count }}</div>
             {% endif %}
         </form>
     </div>
     <script type="text/javascript">
         function set_example() {
             var seq_input = document.getElementById("seq")
-            seq_input.value = ""
-            var seq_aa = document.getElementById("aa")
-            seq_aa.value = "Q2A"
+            seq_input.value = "Q5VT03  M1A F2Q\nQ8NH21 V2A "
+            var seq_kind = document.getElementById("inlineRadio3")
+            seq_kind.checked = true;
         }
     </script>
 {% endblock %}

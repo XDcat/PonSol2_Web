@@ -1,19 +1,21 @@
-import traceback
-
-from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponse, HttpResponseRedirect
-from django.urls import reverse
-from .models import Record, Task
-from datetime import datetime
-import re
-from . import mail_utils
 import logging
-from ponsol2 import model as PonsolClassifier
-import threading
+import re
+import traceback
+from datetime import datetime
+
+from django.core.paginator import Paginator
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import render, get_object_or_404
+from django.urls import reverse
+
 from ponsol2 import get_seq
+from ponsol2 import model as PonsolClassifier
 from .ThreadPool import global_thred_pool
+from .models import Record, Task
 
 log = logging.getLogger("ponsol2_web.views")
+MAX_FILE_SIZE = 20 * 1024 * 8  # 20MB
+MAX_PAGE_NUM = 6
 
 
 def get_ip(request):
@@ -45,13 +47,31 @@ def predict_seq(request):
     """predict: input sequences"""
     log.debug("predict: input sequences")
     task = None
+    error_msg = None
     try:
         # get input
         log.debug("get input")
         ip = get_ip(request)
-        mail = request.POST["mail"]
+        mail = request.POST.get("mail", None)
+
         input_sequence = request.POST["seq"]
         input_aa = request.POST["aa"]
+        file_sequence = request.FILES.get("sequenceInputFile")
+        file_aa = request.FILES.get("assInputFile")
+        if input_sequence and input_aa:
+            pass
+        elif file_sequence and file_aa:
+            if file_sequence.size > MAX_FILE_SIZE or file_aa.size > MAX_FILE_SIZE:
+                error_msg = "THe files are too large. Please make sure that each file is less than 20MB."
+                raise RuntimeError(error_msg)
+            else:
+                input_sequence = file_sequence.read().decode("utf-8")
+                input_aa = file_aa.read().decode("utf-8")
+        else:
+            error_msg = "There is an error in the input. " \
+                        "This may be due to no input or the fact that both input and file are provided."
+            raise RuntimeError(error_msg)
+
         log.debug("request.POST = \n%s", request.POST)
         # create task
         task = Task.objects.create(ip=ip, mail=mail, status="running")
@@ -66,36 +86,54 @@ def predict_seq(request):
         )
         if len(seqs) == len(aas):
             log.debug("start predicting using thread pool: %s", global_thred_pool)
-            global_thred_pool.add_task(task.id, predict, task, names, seqs, aas)
+            global_thred_pool.add_task(task.id, predict, task.id, names, seqs, aas)
         else:
             task.status = "error"
-            task.finish_time = datetime.now().ctime()
+            task.finish_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             task.error_msg = "The number of sequences doesn't correspond to the number of rows of amino acid substitution."
             task.save()
         return HttpResponseRedirect(reverse("ponsol2:task-detail", args=(task.id,)))
     except Exception as e:
-        log.warning("There are some errors with input. Please have a check.")
+        if not error_msg:
+            error_msg = "There are some errors with input. Please have a check."
+        log.warning(error_msg)
         log.info(traceback.format_exc())
         log.info(e)
         if task:
             task.status = "error"
-            task.finish_time = datetime.now().ctime()
-            task.error_msg = "There are some errors with input. Please have a check."
+            task.finish_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            task.error_msg = error_msg
             task.save()
-        return HttpResponse("There are some errors with input. Please have a check.")
+        return render(request, "ponsol2web/input_seq_aa.html", {"error_msg": error_msg})
 
 
 def predict_ids(request):
     """predict: input ids"""
     log.debug("predict: input ids")
     task = None
+    error_msg = None
     try:
         # get input
         log.debug("get input")
         ip = get_ip(request)
-        mail = request.POST["mail"]
-        input_seq = request.POST["seq"]
+        mail = request.POST.get("mail", None)
+
+        input_sequence = request.POST["seq"]
+        file_sequence = request.FILES.get("sequenceInputFile", None)
         input_type = request.POST["type"]  # gi, ensembl id, uniprot id
+        if input_sequence:
+            pass
+        elif file_sequence:
+            if file_sequence.size > MAX_FILE_SIZE:
+                error_msg = "THe files are too large. Please make sure that each file is less than 20MB."
+                raise RuntimeError(error_msg)
+            else:
+                input_sequence = file_sequence.read().decode("utf-8")
+        else:
+            error_msg = "There is an error in the input. " \
+                        "This may be due to no input or the fact that both input and file are provided."
+            raise RuntimeError(error_msg)
+
         log.debug("request.POST = \n%s", request.POST)
         # create task
         task = Task.objects.create(ip=ip, mail=mail, status="running")
@@ -103,30 +141,32 @@ def predict_ids(request):
         log.debug("creat task, id = %s", task.id)
         # check seq and aa
         log.debug("check seq and aa")
-        names, seqs, aas = check_ids_input(input_seq, input_type)
+        names, seqs, aas = check_ids_input(input_sequence, input_type)
         log.debug(
             "names, seqs, aas\nnames %s %s\nseqs %s %s\naas %s %s",
             len(names), names, len(seqs), seqs, len(aas), aas
         )
         if len(seqs) == len(aas):
             log.debug("start predicting using thread pool: %s", global_thred_pool)
-            global_thred_pool.add_task(task.id, predict, task, names, seqs, aas)
+            global_thred_pool.add_task(task.id, predict, task.id, names, seqs, aas)
         else:
             task.status = "error"
             task.error_msg = "The number of sequences doesn't correspond to the number of rows of amino acid substitution."
-            task.finish_time = datetime.now().ctime()
+            task.finish_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             task.save()
         return HttpResponseRedirect(reverse("ponsol2:task-detail", args=(task.id,)))
     except Exception as e:
-        log.warning("There are some errors with input. Please have a check.")
+        if not error_msg:
+            error_msg = "There are some errors with input. Please have a check."
+        log.warning(error_msg)
         log.info(traceback.format_exc())
         log.info(e)
         if task:
             task.status = "error"
-            task.finish_time = datetime.now().ctime()
-            task.error_msg = "There are some errors with input. Please have a check."
+            task.finish_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            task.error_msg = error_msg
             task.save()
-        return HttpResponse("There are some errors with input. Please have a check.")
+        return render(request, "ponsol2web/input_protein_id.html", {"error_msg": error_msg})
 
 
 def get_detail(request, record_id):
@@ -148,27 +188,39 @@ def get_running_tasks(request):
 
 
 # --- utils ---
-def predict(task, name, seq, aa):
+def predict(task_id, name, seq, aa):
     """
     predict aa of seq
-    :param task: corresponding tast
+    :param task_id: id of corresponding tast
     :param seq: list - seq list
     :param aa: 2d list - each seq has one list that containing some aas
     :return:
     """
+    log.debug("start the predict task(id = %s)", task_id)
+    task = Task.objects.get(id=task_id)
     if len(name) != len(seq) or len(seq) != len(aa):
         if len(name) != len(seq):
             msg = "The number of sequences doesn't correspond to the number of names."
             task.status = "error"
             task.error_msg = msg
+            task.finish_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             task.save()
             raise RuntimeError(msg)
         else:
             msg = "The number of sequences doesn't correspond to the number of rows of amino acid substitution."
             task.status = "error"
             task.error_msg = msg
+            task.finish_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             task.save()
             raise RuntimeError(msg)
+    elif len(name) == 0:
+        msg = "There is no valid input."
+        task.status = "error"
+        task.error_msg = msg
+        task.finish_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        task.save()
+        raise RuntimeError(msg)
+
     N = len(seq)
     classifier = PonsolClassifier.PonSol2()
     for i in range(N):
@@ -178,19 +230,24 @@ def predict(task, name, seq, aa):
         for a in aa[i]:
             record = task.record_set.create(name=n, seq=s, aa=a)
             record.save()
-            # predict
-            try:
-                pred = classifier.predict(s, a)[0]
-                record.solubility = pred
-                record.status = "finished"
-                record.save()
-            except Exception as e:
-                record.status = "error"
-                record.error_msg = str(e)
-                record.save()
+    for record in task.record_set.all():
+        # predict
+        s = record.seq
+        a = record.aa
+        try:
+            pred = classifier.predict(s, a)[0]
+            record.solubility = pred
+            record.status = "finished"
+            record.save()
+        except Exception as e:
+            record.status = "error"
+            record.error_msg = str(e)
+            record.save()
+
     task.status = "finished"
-    task.finish_time = datetime.now().ctime()
+    task.finish_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     task.save()
+    log.debug("task(id=%s) is finished!", task_id)
 
 
 def check_seq_input(seq, aa):
@@ -237,8 +294,33 @@ def check_ids_input(ids, kind):
 def task_list(request):
     """return the list of task by ip"""
     ip = get_ip(request)
-    tasks = Task.objects.filter(ip=ip)
-    return render(request, "ponsol2web/task_list.html", {"tasks": tasks})
+    tasks = Task.objects.filter(ip=ip).order_by("-start_time")
+    # pager
+    paginator = Paginator(tasks, 15)
+    num_pages = paginator.num_pages
+    page_list = paginator.page_range
+    page_number = request.GET.get("page", 1)
+    page_obj = paginator.get_page(page_number)
+
+    current_page = page_obj.number
+    display_page_list = []
+    if len(page_list) <= MAX_PAGE_NUM:
+        for i in page_list:
+            display_page_list.append((i, f"?page={i}"))
+    else:
+        if current_page <= num_pages - MAX_PAGE_NUM:
+            for i in range(current_page, current_page + 4):
+                display_page_list.append((i, f"?page={i}"))
+            display_page_list.append(("...", "#"))
+            for i in range(1, 0 - 1, -1):
+                t = num_pages - i
+                display_page_list.append((t, f"?page={t}"))
+            pass
+        else:
+            for i in range(num_pages - MAX_PAGE_NUM, num_pages + 1):
+                display_page_list.append((i, f"?page={i}"))
+
+    return render(request, "ponsol2web/task_list.html", {"count": num_pages, "page_obj": page_obj, "page_list": display_page_list})
 
 
 def task_detail(request, task_id):
