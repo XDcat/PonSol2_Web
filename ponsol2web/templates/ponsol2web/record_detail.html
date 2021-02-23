@@ -1,0 +1,58 @@
+{% extends "ponsol2web/base_generic.html" %}
+{% block title %} Detail {% endblock %}
+
+{% block content %}
+    <div class="page-header">
+        <h1>Predict Detail<small></small></h1>
+    </div>
+
+
+    <div class="panel panel-default">
+        <!-- Default panel contents -->
+{#        <div class="panel-heading">Panel heading</div>#}
+        <div class="panel-body">
+            {% if record.status == "running" %}
+                <div class="alert alert-info" role="alert">Running! This record is running now, please wait a moment.
+                </div>
+            {% elif record.status == "finished" %}
+                <div class="alert alert-success" role="alert">Finished! This record is finished, and the result is the
+                    followed.
+                </div>
+            {% elif record.status == "error" %}
+                <div class="alert alert-warning" role="alert">Error! {{ record.error_msg }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Table -->
+        <table class="table table-bordered table-striped" style="word-break:break-all;">
+            <tr class="row">
+                <td class="col-lg-2">Protein Name</td>
+                <td class="col-lg-10">{{ record.name }}</td>
+            </tr>
+            <tr class="row">
+                <td class="col-lg-2">Faste Sequence</td>
+                <td class="col-lg-10">{{ record.seq }}</td>
+            </tr>
+            <tr class="row">
+                <td class="col-lg-2">Substitution</td>
+                <td class="col-lg-10">{{ record.aa }}</td>
+            </tr>
+            <tr class="row">
+                <td class="col-lg-2">Result</td>
+                <td class="col-lg-10">{{ record.solubility}}</td>
+            </tr>
+            <tr class="row">
+                <td class="col-lg-2">Status</td>
+                <td class="col-lg-10 text-capitalize">{{ record.status }}</td>
+            </tr>
+            {% if record.error_msg %}
+                <tr class="row">
+                    <td class="col-lg-2">Error_msg</td>
+                    <td class="col-lg-10">{{ record.error_msg }}</td>
+                </tr>
+            {% endif %}
+        </table>
+    </div>
+    <ul>
+    </ul>
+{% endblock %}

@@ -39,6 +39,12 @@ class PonSol2:
         return True
 
     def predict(self, seq, aa):
+        """
+        预测
+        :param seq: 氨基酸序列，不包含名称
+        :param aa: 变异，索引从1开始，e.g. A1B
+        :return: 预测结果
+        """
         all_features = feature_extraction.get_all_features(seq, aa)
         pred = self._predict(all_features)
         return pred

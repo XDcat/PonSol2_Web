@@ -2,38 +2,54 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}Home {% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="{% static "ponsol2web/button.css" %}">
-    <link rel="stylesheet" type="text/css" href="{% static "ponsol2web/base_style.css" %}">
+        <link rel="stylesheet" type="text/css" href="{% static "ponsol2web/base_style.css" %}">
+    <!-- Bootstrap -->
+    <link rel="stylesheet" type="text/css" href="{% static "ponsol2web/css/bootstrap.min.css" %}">
+    <!-- Custom styles for this template -->
+    <link href="{% static "ponsol2web/css/justified-nav.css" %}" rel="stylesheet">
+
 </head>
 <body>
-<div id="navigator" class="left main_color">
-    <div>
-        <a href="{% url "ponsol2:index" %}">
-            <img id="logo" src="{% static "ponsol2web/img/ponsol2_logo.png" %}">
-        </a>
-    </div>
-    <ul>
-        <li class="index"><a class="ttlink" href="{% url "ponsol2:index" %}">HOME</a></li>
-        <li class="index"><a class="ttlink" href="{% url "ponsol2:input" %}">PREDICT</a></li>
-        <li class="index"><a class="ttlink" href="{% url "ponsol2:result" %}">RESULT</a></li>
-        <li class="index"><a class="ttlink" href="{% url "ponsol2:about" %}">ABOUT</a></li>
-    </ul>
-</div>
+<div class="container">
 
-<div id="content" class="right">
-    <div id="title">
-
-        <h1>{% block content_title %}Wecome to Pon-Sol2! {% endblock %}</h1>
-        <p>{% block content_title_describe %} {% endblock %}</p>
+    <!-- The justified navigation menu is meant for single line per list item.
+         Multiple lines will require custom code not provided by Bootstrap. -->
+    <div class="masthead" style="margin-bottom: 40px;">
+        <h3>
+            <a class="navbar-brand" href="{% url "ponsol2:index" %}">
+                <img alt="PON-Sol2" style="max-width:100px;margin-top:-7px;"
+                     src="{% static "ponsol2web/img/ponsol2_logo.png" %}">
+            </a>
+        </h3>
+        <nav>
+            <ul class="nav nav-justified">
+                <li><a href="{% url "ponsol2:index" %}">Home</a></li>
+                <li><a href="{% url "ponsol2:input" %}">Predict</a></li>
+                <li><a href="{% url "ponsol2:task-list" %}">Result</a></li>
+                <li><a href="{% url "ponsol2:disclaimer" %}">Disclaimer</a></li>
+                <li><a href="{% url "ponsol2:about" %}">About</a></li>
+            </ul>
+        </nav>
     </div>
+
     {% block content %}
-        {#        <div><a href="{% url "ponsol2:input" %}"><span class="button main_color">Start</span> </a></div>#}
-        <a class="ttlink" href="{% url "ponsol2:input" %}">
-            <div class="main_color button button-glow button-rounded button-raised button-primary">Start</div>
-        </a>
+
     {% endblock %}
-</div>
+    <!-- Site footer -->
+    <footer class="footer">
+        <p>Last update 2021</p>
+    </footer>
+
+</div> <!-- /container -->
 </body>
+<!-- jQuery (Bootstrap 的 JavaScript 插件需要引入 jQuery) -->
+<script src="{% static "ponsol2web/js/jquery.min.js" %}"></script>
+<!-- 包括所有已编译的插件 -->
+<script src="{% static "ponsol2web/js/bootstrap.min.js" %}"></script>
 </html>

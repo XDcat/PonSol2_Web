@@ -1,0 +1,23 @@
+{% extends "ponsol2web/base_generic.html" %}
+
+{% block content %}
+    <div class="page-header">
+        <h1>Predict<small></small></h1>
+    </div>
+    <div class="row" style="padding-left: 20px; padding-right: 20px">
+        <p class="lead">
+            PON-Sol2 is a fast predictor based on protein FASTE sequences to identify amino acid substitutions (AASs)
+            that increase, decrease of have no effect on the protein solubility.
+            To start using PON-Sol2, you just need to provide protein FASTE sequences and AASs.
+            For protein FASTE sequences, there are 2 input ways: directly input FASTE sequences or input protein IDs(GI,
+            Ensemble ID or UniProt).
+            You can directly provide the corresponding content or upload files.
+        </p>
+        <a class="btn col-md-6 bg-info" href="{% url "ponsol2:seq-predict" %}">
+            <h4>Input Faste Sequences</h4>
+        </a>
+        <a class="btn col-md-6 bg-warning" href="{% url "ponsol2:seq-id" %}">
+            <h4> Input Protein IDs </h4>
+        </a>
+    </div>
+{% endblock %}

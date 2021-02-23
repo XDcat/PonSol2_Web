@@ -19,7 +19,7 @@
       <paths name="zlj@192.168.1.111:22">
         <serverdata>
           <mappings>
-            <mapping deploy="/home/zlj/box/ponsol2-web" local="$PROJECT_DIR$" />
+            <mapping local="$PROJECT_DIR$" web="/" />
           </mappings>
         </serverdata>
       </paths>
