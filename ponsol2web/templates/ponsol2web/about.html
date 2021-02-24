@@ -2,5 +2,74 @@
 {% block title %} About {% endblock %}
 
 {% block content %}
-    <p>Waiting for completing...</p>
+    <div class="page-header">
+        <h1>About<small></small></h1>
+    </div>
+    <div>
+        <h2>Start predict</h2>
+        <p>To start using PON-Sol2, you just need to provide protein FASTE sequences and AASs. For protein FASTE
+            sequences,
+            there are 2 input ways: directly input FASTE sequences or input protein IDs(GI, Ensemble ID or UniProt). For
+            both ways, you can directly provide the corresponding content or upload files, and can submit multiple
+            queries
+            simultaneously.</p>
+        <p>If you just want to get the input example, please click the &quot;Example&quot; text in the input page.</p>
+        <h3>Input Fasta sequences</h3>
+        <p>If you have the complete Fasta sequences, you can input Fasta sequences. Faste sequences and AASs must be
+            provided, and email is optional. If email is provided, the results will be sent to you by email when
+            ready. </p>
+        <ol start=''>
+            <li>For Fasta sequences, each sequence should have a header line starting with greater than sign (&gt;)
+                followed
+                by amino acids sequence. Amino acids sequence need to start from a new line, and can be one-line or
+                multiline.
+            </li>
+            <li>For AASs, an AAS consists of three parts: origin amino acid, position and new amino acid. For example,
+                &quot;A2M&quot; means the second amino acid A (Alanine) is substituted by M (Substitute). Each protein
+                sequence can correspond to multiple AASs, and AASs in the same Fasta sequence should be on the same line
+                separated by a space.
+            </li>
+
+        </ol>
+        <h3>Input Protein IDs</h3>
+        <p>If you just have the protein IDs, PON-Sol2 will find the Fasta sequences according to the IDs. Protein IDs,
+            AASs
+            and type of IDs must be provided, and email is optional. If email is provided, the results will be sent to
+            you
+            by email when ready. </p>
+        <p>As protein IDs is usually short, there is only one input box. You can provide multiple AASs, and the AASs of
+            the
+            same line need to put to the same line. For each line, the first element is a protein ID, and the next are
+            corresponding AASs. And the elements of each line are separated by a space. For example, &quot;Q5VT03 M1A
+            F3Q&quot;
+            means the protein that ID is Q5VT03 has two AASs, the first is the first amino acid from M (Methionine) to A
+            (Alanine) and the second is the third amino acid from F (Phenylalanine) to Q (Glutamic acid). </p>
+        <h2>Predict result</h2>
+        <p>PON-Sol2 provide complete result presentation pages. For each submission you make we call it a &quot;Task&quot;
+            and for each AAS we call it a &quot;Record&quot;. Each task and record has its own detail page. So there are
+            3
+            pages of predict result: </p>
+        <ol start=''>
+            <li>Task list. Click &quot;Result&quot; of navbar, you will get a task list according to your IP.</li>
+            <li>Task detail and record list. Click status of task, you will get task detail containing status of task,
+                start
+                time, end time, email and record list.
+            </li>
+            <li>Record detail. Click protein name of record, you will get record detail containing protein name, Fasta
+                sequence, AAS, result and status.
+            </li>
+
+        </ol>
+        <p>If you provide email when predicting, the results will be sent to you by email when ready. </p>
+        <h2>Data set</h2>
+        <p>Altogether 11201 amino acid substitutions in 77 proteins are collected. After filtering, 5666 variants (2798
+            solubility decreasing, 1929 increasing and 939 without effect on solubility) are used for training, and 662
+            variants (338 solubility decreasing, 237 increasing and 87 without effect on solubility) are used for blind
+            testing. The datasets are freely available in VariBench database at .</p>
+        <h2>Contact</h2>
+        <p>If you have any problems, please contact Lianjie Zeng (<a href='mailto:zenglianjie@foxmail.com'
+                                                                     target='_blank'
+                                                                     class='url'>zenglianjie@foxmail.com</a>).</p>
+
+    </div>
 {% endblock %}
