@@ -258,6 +258,8 @@ def predict(task_id, name, seq, aa):
 
 def check_seq_input(seq, aa):
     # find all sequences
+    seq = seq.upper()
+    aa = aa.upper()
     seqs = re.findall(">[^>]*", seq)
     # find names and sequences
     name_res = []
@@ -279,6 +281,8 @@ def check_seq_input(seq, aa):
 
 def check_ids_input(ids, kind):
     """check ids input"""
+    ids = ids.upper()
+    kind = kind.lower()
     ids = ids.strip()
     name_res = []
     seq_res = []

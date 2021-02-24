@@ -67,7 +67,7 @@
                         <td>{{ forloop.counter }}</td>
                         <td><a href="{% url "ponsol2:record-detail" record.id %}">{{ record.name }}</a></td>
                         <td class="text-capitalize">{{ record.status }}</td>
-                        <td>{{ record.solubility }}</td>
+                        <td>{{ record.get_solubility_display }}</td>
                     </tr>
                 {% endfor %}
 
