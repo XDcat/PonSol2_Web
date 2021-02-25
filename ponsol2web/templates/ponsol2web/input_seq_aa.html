@@ -2,7 +2,7 @@
 {% block title %} Predict {% endblock %}
 {% block content %}
     <div class="page-header">
-        <h1>Input Faste Sequences<small></small></h1>
+        <h1>Input FASTA Sequences<small></small></h1>
     </div>
     <div class="form row">
         {% if error_msg %}
@@ -13,7 +13,7 @@
         <form id="ponsol_form" enctype="multipart/form-data" action="{% url "ponsol2:predict-seq" %}" method="post">
             {% csrf_token %}
             <div class="form-group col-md-12">
-                <label for="seq">Faste Sequence</label>
+                <label for="seq">FASTA Sequence</label>
                 <a id="example_input" href="javascript:set_example()">Example</a>
                 <div class="fix-vertical-center">
                     <div style="padding-left: 0px" class="col-md-8">
@@ -25,14 +25,14 @@
                         </strong>
                     </div>
                     <div class="col-md-3" style="margin-top: auto; margin-bottom: auto;">
-                        <label for="sequenceInputFile">Update File</label>
+                        <label for="sequenceInputFile">Upload sequence file in FASTA format</label>
                         <input type="file" id="sequenceInputFile" name="sequenceInputFile">
                     </div>
                 </div>
             </div>
 
             <div class="form-group col-md-12">
-                <label class="right-align" for="aa">AAS</label>
+                <label class="right-align text-capitalize" for="aa">amino acid substitution</label>
                 <div class="fix-vertical-center">
                     <div class="col-md-8" style="padding-left: 0px">
                         <textarea class="form-control" rows="10" type="text" name="aa" id="aa"></textarea>
@@ -43,7 +43,7 @@
                         </strong>
                     </div>
                     <div class="col-md-3">
-                        <label for="aasInputFile">Update File</label>
+                        <label for="aasInputFile">Upload variation file</label>
                         <input type="file" id="aasInputFile" name="assInputFile">
                     </div>
                 </div>

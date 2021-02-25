@@ -6,7 +6,10 @@
         <p class="lead">
             Solubility is a central protein property and when reduced can lead to diseases. We have developed a
             prediction method, PON-Sol2, to identify amino acid substitutions that increase, decrease of have no effect
-            on the protein solubility.
+            on the protein solubility. The method is a machine leaning tool utilizing gradient boosting algorithm and it
+            has been trained on a large data set of variants with different outcomes after selection of features among
+            large number of tested properties. The method is fast and has high performance, which was determined for
+            each of the variation types as well as for the entire predictor.
         </p>
         <p><a class="btn btn-lg btn-success" href="{% url "ponsol2:input" %}" role="button">Get started</a></p>
     </div>
@@ -16,7 +19,7 @@
         <div class="col-lg-4">
             <h2>Input Format</h2>
             <p>
-                There are two input ways that have different input formats. Faste sequences and amino acid substitutions
+                There are two input ways that have different input formats. FASTA sequences and amino acid substitutions
                 are provided seperatly, or IDs and amino acid substitutions are put together.
             </p>
             <p><a class="btn btn-primary" href="{% url "ponsol2:about" %}" role="button">View details »</a></p>
@@ -30,8 +33,8 @@
         <div class="col-lg-4">
             <h2>Predict Result</h2>
             <p>
-                Predict results will be displayed in the Result page. The list of result is generated according to IP.
-                You can also provide your email, and results will be sent to your email if completed.
+                Predict result will be displayed in the Result page. The list of result is generated according to IP.
+                You can also provide your email, and result will be sent to your email if completed.
             </p>
             <p><a class="btn btn-primary" href="{% url "ponsol2:task-list" %}" role="button">View
                 details »</a></p>
