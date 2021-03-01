@@ -37,7 +37,8 @@
                 </div>
                 <div class="col-lg-8 text-capitalize">
                     <label class="radio-inline">
-                        <input type="radio" name="type" id="inlineRadio3" value="uniprot id">UniProtKB/Swiss-Prot ID</label>
+                        <input type="radio" name="type" id="inlineRadio3" value="uniprot id">UniProtKB/Swiss-Prot
+                        ID</label>
                     <label class="radio-inline">
                         <input type="radio" name="type" id="inlineRadio1" value="gi">Entrez gene ID
                     </label>
@@ -64,7 +65,11 @@
     <script type="text/javascript">
         function set_example() {
             var seq_input = document.getElementById("seq")
-            seq_input.value = "Q5VT03  M1A F2Q\nQ8NH21 V2A "
+            seq_input.value = ">Q5VT03\n\
+M1A\n\
+F2Q\n\
+>Q8NH21\n\
+V2A"
             var seq_kind = document.getElementById("inlineRadio3")
             seq_kind.checked = true;
         }

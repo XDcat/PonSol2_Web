@@ -7,7 +7,8 @@
     </div>
     <div>
         <h2>Start predict</h2>
-        <p>To start using PON-Sol2, you just need to provide protein FASTA sequences and amino acid substitutions. For protein FASTA
+        <p>To start using PON-Sol2, you just need to provide protein FASTA sequences and amino acid substitutions. For
+            protein FASTA
             sequences,
             there are 2 input ways: directly input FASTA sequences or input protein IDs(GI, Ensemble ID or UniProt). For
             both ways, you can directly provide the corresponding content or upload files, and can submit multiple
@@ -15,7 +16,8 @@
             simultaneously.</p>
         <p>If you just want to get the input example, please click the &quot;Example&quot; text in the input page.</p>
         <h3>Input FASTA sequences</h3>
-        <p>If you have the complete FASTA sequences, you can input FASTA sequences. FASTA sequences and amino acid substitutions must be
+        <p>If you have the complete FASTA sequences, you can input FASTA sequences. FASTA sequences and amino acid
+            substitutions must be
             provided, and email is optional. If email is provided, the results will be sent to you by email when
             ready. </p>
         <ol start=''>
@@ -24,29 +26,70 @@
                 by amino acids sequence. Amino acids sequence need to start from a new line, and can be one-line or
                 multiline.
             </li>
-            <li>For amino acid substitutions, an amino acid substitution consists of three parts: origin amino acid, position and new amino acid. For example,
-                &quot;A2M&quot; means the second amino acid A (Alanine) is substituted by M (Substitute). Each protein
-                sequence can correspond to multiple amino acid substitutions, and amino acid substitutions in the same FASTA sequence should be on the same line
-                separated by a space.
+            <li>For amino acid substitutions, substitutions corresponding to a sequence should contain the same header
+                line as the sequence.
+                An amino acid substitution consists of three parts: origin amino acid, position and new amino acid.
+                For example, &quot;A2M&quot; means the second amino acid A (Alanine) is substituted by M (Substitute).
+                Each protein sequence can correspond to multiple amino acid substitutions,
+                and amino acid substitutions in the same FASTA sequence should be on the different lines.
             </li>
+        </ol>
+        <h4>Example</h4>
+        <ol start="">
+            <li>
+                FASTA Sequence
+            </li>
+            <pre><code>>AAK83653.1 11-beta hydroxysteroid dehydrogenase type 1 [Homo sapiens]
+MAFMKKYLLPILGLFMAYYYYSANEEFRPEMLQGKKVIVTGASKGIGREMAYHLAKMGAHVVVTARSKETLQKVVSHCLELGAASAHYIAGTMEDMTFAEQFVAQAGKLMGGLDMLILNHITNTSLNLFHDDIHHVRKSMEVNFLSYVVLTVAALPMLKQSNGSIVVVSSLAGKVAYPMVAAYSASKFALDGFFSSIRKEYSVSRVNVSITLCVLGLIDTETAMKAVSGIVHMQAAPKEECALEIIKGGALRQEEVYYDSSLWTTLLIRNPCRKILEFLYSTSYNMDRFINK
+
+>sp|Q8NH21|OR4F5_HUMAN Olfactory receptor 4F5 OS=Homo sapiens OX=9606 GN=OR4F5 PE=3 SV=1
+MVTEFIFLGLSDSQELQTFLFMLFFVFYGGIVFGNLLIVITVVSDSHLHSPMYFLLANLSLIDLSLSSVTAPKMITDFFSQRKVISFKGCLVQIFLLHFFGGSEMVILIAMGFDRYIAICKPLHYTTIMCGNACVGIMAVTWGIGFLHSVSQLAFAVHLLFCGPNEVDSFYCDLPRVIKLACTDTYRLDIMVIANSGVLTVCSFVLLIISYTIILMTIQHRPLDKSSKALSTLTAHITVVLLFFGPCVFIYAWPFPIKSLDKFLAVFYSVITPLLNPIIYTLRNKDMKTAIRQLRKWDAHSSVKF
+</code></pre>
+            <li>Amino Acid Substitution</li>
+            <pre><code>>AAK83653.1 11-beta hydroxysteroid dehydrogenase type 1 [Homo sapiens]
+M1A
+F3K
+>sp|Q8NH21|OR4F5_HUMAN Olfactory receptor 4F5 OS=Homo sapiens OX=9606 GN=OR4F5 PE=3 SV=1
+V2E
+T3F
+</code></pre>
 
         </ol>
         <h3>Input Protein IDs</h3>
-        <p>If you just have the protein IDs, PON-Sol2 will find the FASTA sequences according to the IDs. Protein IDs,
-            amino acid substitutions
-            and type of IDs must be provided, and email is optional. If email is provided, the results will be sent to
-            you
-            by email when ready. </p>
-        <p>As protein IDs is usually short, there is only one input box. You can provide multiple amino acid substitutions, and the amino acid substitutions of
-            the
-            same line need to put to the same line. For each line, the first element is a protein ID, and the next are
-            corresponding amino acid substitutions. And the elements of each line are separated by a space. For example, &quot;Q5VT03 M1A
-            F3Q&quot;
-            means the protein that ID is Q5VT03 has two amino acid substitutions, the first is the first amino acid from M (Methionine) to A
-            (Alanine) and the second is the third amino acid from F (Phenylalanine) to Q (Glutamic acid). </p>
+        <p>If you just have the protein IDs, PON-Sol2 will find the FASTA sequences according to the IDs.
+            Protein IDs, amino acid substitutions and type of IDs must be provided, and email is optional.
+            If email is provided, the results will be sent to you by email when ready.
+        </p>
+        <p>As protein IDs is usually short, there is only one input box. The IDs should be preceded by greater than sign
+            (>).
+            You can provide multiple amino acid substitutions, and the amino acid substitutions of the same protein need
+            to put to the different lines after the line of ID.
+            The following example
+            means the protein that ID is Q5VT03 has two amino acid substitutions, the first is the first amino acid from
+            M (Methionine) to A (Alanine) and the second is the third amino acid from F (Phenylalanine) to Q (Glutamic
+            acid).
+        <pre><code>&gt;Q5VT03
+M1A
+F2Q
+</code></pre>
+        </p>
+        <h4>Example</h4>
+        <ol start="">
+            <li> ID and amino acid substitution</li>
+            <pre><code>>Q5VT03
+M1A
+F2Q
+>Q8NH21
+V2A
+</code></pre>
+            <li> ID Type</li>
+            <pre><code>UniProtKB/Swiss-Prot ID
+</code></pre>
+        </ol>
         <h2>Predict result</h2>
         <p>PON-Sol2 provide complete result presentation pages. For each submission you make we call it a &quot;Task&quot;
-            and for each amino acid substitution we call it a &quot;Record&quot;. Each task and record has its own detail page. So there are
+            and for each amino acid substitution we call it a &quot;Record&quot;. Each task and record has its own
+            detail page. So there are
             3
             pages of predict result: </p>
         <ol start=''>

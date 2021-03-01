@@ -1,12 +1,20 @@
+import re
+import traceback
+
 import mygene
 import requests
-import traceback
-import re
+
+from . import logconfig
+import logging
+
+logconfig.setup_logging()
+log = logging.getLogger("ponsol.get_seq")
 
 a_list = ('A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y')
 
 
 def get_seq_by_id(ids, type):
+    log.debug(f"ids={ids}, type={type}")
     if type == "gi":
         return get_seq_from_gi(ids)
     elif type == "ensembl id":

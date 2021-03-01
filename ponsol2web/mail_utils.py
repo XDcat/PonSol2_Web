@@ -11,9 +11,14 @@ import os
 
 from django.core.mail import send_mail
 
+from PonSol2_Web.settings import DEBUG
 from . import models
 
 log = logging.getLogger("ponsol2_web.mail")
+if DEBUG:
+    RESULT_URL_PRE = "http://127.0.0.1:8000"
+else:
+    RESULT_URL_PRE = "http://structure.bmc.lu.se/PON-Sol2"
 
 
 def send_result(task_id, ):
@@ -28,12 +33,15 @@ def send_result(task_id, ):
         records = task.record_set.all()
         records_info = []
         for i, record in enumerate(records):
-            records_info.append("{}. {}, {}, {}".format(i+1, record.name, record.aa, record.get_solubility_display()))
+            records_info.append("{}. {}, {}, {}".format(i + 1, record.name, record.aa, record.get_solubility_display()))
 
-        msg = ["\n".join(records_info), ]
-        msg = "\n".join(msg)
-        msg = temp.format(msg)
-        _send_mail(msg, to_mail, )
+        res_list = ["\n".join(records_info), ]
+        res_list = "\n".join(res_list)
+        res_list = temp.format(
+            res=res_list,
+            url=f" ({RESULT_URL_PRE}/task/{task_id})",
+        )
+        _send_mail(res_list, to_mail, )
 
 
 def _send_mail(msg, to_mail, subject="Result of PON-Sol2"):

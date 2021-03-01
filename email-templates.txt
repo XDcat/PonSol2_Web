@@ -4,9 +4,9 @@ Thank you for using PON-Sol2.
 
 The result of your submit is followed:
 
-{}
+{res}
 
-You can also go to the Result page of PON-Sol2 website to see more detailed information.
+You can also go to the Result page of PON-Sol2 website to see more detailed information{url}.
 
 Best regards,
 
