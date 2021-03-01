@@ -10,9 +10,9 @@ from django.urls import reverse
 
 from ponsol2 import get_seq
 from ponsol2 import model as PonsolClassifier
+from . import mail_utils
 from .ThreadPool import global_thred_pool
 from .models import Record, Task
-from . import mail_utils
 
 log = logging.getLogger("ponsol2_web.views")
 MAX_FILE_SIZE = 20 * 1024 * 8  # 20MB
@@ -223,7 +223,18 @@ def predict(task_id, name, seq, aa):
         raise RuntimeError(msg)
 
     N = len(seq)
-    classifier = PonsolClassifier.PonSol2()
+    try:
+        log.debug("Load classifier.")
+        classifier = PonsolClassifier.PonSol2()
+    except Exception as e:
+        msg = "Can't load classifier."
+        log.warning(msg)
+        log.info(traceback.format_exc())
+        task.status = "error"
+        task.error_msg = str(msg)
+        task.save()
+
+    log.debug("create records")
     for i in range(N):
         # initialize record
         n = name[i]
@@ -258,6 +269,8 @@ def predict(task_id, name, seq, aa):
 
 def check_seq_input(seq, aa):
     # find all sequences
+    seq = seq.upper()
+    aa = aa.upper()
     seqs = re.findall(">[^>]*", seq)
     # find names and sequences
     name_res = []
@@ -279,6 +292,8 @@ def check_seq_input(seq, aa):
 
 def check_ids_input(ids, kind):
     """check ids input"""
+    ids = ids.upper()
+    kind = kind.lower()
     ids = ids.strip()
     name_res = []
     seq_res = []
@@ -326,7 +341,8 @@ def task_list(request):
             for i in range(num_pages - MAX_PAGE_NUM, num_pages + 1):
                 display_page_list.append((i, f"?page={i}"))
 
-    return render(request, "ponsol2web/task_list.html", {"count": num_pages, "page_obj": page_obj, "page_list": display_page_list})
+    return render(request, "ponsol2web/task_list.html",
+                  {"count": num_pages, "page_obj": page_obj, "page_list": display_page_list})
 
 
 def task_detail(request, task_id):

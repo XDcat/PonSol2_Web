@@ -28,7 +28,7 @@ def send_result(task_id, ):
         records = task.record_set.all()
         records_info = []
         for i, record in enumerate(records):
-            records_info.append("{}. {}, {}, {}".format(i, record.name, record.aa, record.get_solubility_display()))
+            records_info.append("{}. {}, {}, {}".format(i+1, record.name, record.aa, record.get_solubility_display()))
 
         msg = ["\n".join(records_info), ]
         msg = "\n".join(msg)

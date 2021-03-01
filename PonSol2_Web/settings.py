@@ -24,6 +24,7 @@ SECRET_KEY = '^036eglnkjc@dby*3px-wqu-ellinvc@8ow2cv40pzzn!tp6t2'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+# DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
 
@@ -77,7 +78,7 @@ DATABASES = {
     "default": {
         'ENGINE': 'django.db.backends.mysql',
         "OPTIONS": {
-            'read_default_file': os.path.join(BASE_DIR, "my.config")
+            'read_default_file': os.path.join(BASE_DIR, "db.config")
         },
     },
     'other': {
@@ -121,6 +122,7 @@ USE_TZ = False
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
+STATIC_ROOT = '/srv/django/ponsol2/static'
 STATIC_URL = '/static/'
 
 LOGGING = {
@@ -147,7 +149,7 @@ LOGGING = {
             "class": "logging.handlers.RotatingFileHandler",
             "formatter": "default",
             "level": "DEBUG",
-            "filename": os.path.join(BASE_DIR, "debug.log"),  # 必选, 文件名称
+            "filename": os.path.join(BASE_DIR, "ponsol2_web_debug.log"),  # 必选, 文件名称
             "encoding": "utf8",
             "maxBytes": 10485760,  # 日志文件最大个数 1024B * 1024 * 10 = 10MB
             "backupCount": 10,  # 日志文件最大个数
@@ -156,7 +158,7 @@ LOGGING = {
             "class": "logging.handlers.RotatingFileHandler",
             "formatter": "default",
             "level": "INFO",
-            "filename": os.path.join(BASE_DIR, "info.log"),  # 必选, 文件名称
+            "filename": os.path.join(BASE_DIR, "ponsol2_web_info.log"),  # 必选, 文件名称
             "encoding": "utf8",
             "maxBytes": 10485760,  # 日志文件最大个数 1024B * 1024 * 10 = 10MB
             "backupCount": 10,  # 日志文件最大个数
