@@ -1,10 +1,11 @@
 import logging
+import os
 import re
 import traceback
 from datetime import datetime
 
 from django.core.paginator import Paginator
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, FileResponse
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 
@@ -356,3 +357,17 @@ def task_detail(request, task_id):
 def record_detail(request, record_id):
     record = Record.objects.get(id=record_id)
     return render(request, "ponsol2web/record_detail.html", {"record": record})
+
+
+def download_dataset_ponsol2(request):
+    path = os.path.join(os.path.dirname(__file__), "./static/ponsol2web/file/PON-Sol2 dataset.zip")
+    file = open(path, 'rb')
+    response = FileResponse(file)
+    return response
+
+
+def download_dataset_ponsol(request):
+    path = os.path.join(os.path.dirname(__file__), "./static/ponsol2web/file/PON-Sol_data.xlsx")
+    file = open(path, 'rb')
+    response = FileResponse(file)
+    return response

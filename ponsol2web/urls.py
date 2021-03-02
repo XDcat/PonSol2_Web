@@ -29,5 +29,8 @@ urlpatterns = [
     path("about/", views.get_about, name="about"),
     path("disclaimer/", TemplateView.as_view(template_name="ponsol2web/disclaimer.html"), name="disclaimer"),
 
-    path("task/running/", views.get_running_tasks, name="task-running")
+    path("task/running/", views.get_running_tasks, name="task-running"),
+    # download
+    path("download/ponsol2_dataset", views.download_dataset_ponsol2, name="download-dataset-ponsol2"),
+    path("download/ponsol_dataset", views.download_dataset_ponsol, name="download-dataset-ponsol")
 ]
