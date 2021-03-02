@@ -1,10 +1,11 @@
 import logging
+import os
 import re
 import traceback
 from datetime import datetime
 
 from django.core.paginator import Paginator
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, FileResponse
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 
@@ -277,38 +278,41 @@ def check_seq_input(seq, aa):
     seq_res = []
     for seq in seqs:
         rows = seq.split("\n")
-        name = rows[0]
+        name = rows[0].strip()
         seq = "".join([i.strip() for i in rows[1:]])
         name_res.append(name.strip())
         seq_res.append(seq.strip())
     # find all AAS
-    aa = aa.strip()
-    aa_res = []
-    for row in aa.split("\n"):
-        aa_res.append(row.split())
+    aa_find = re.findall(">[^>]*", aa.strip())
+    aa_res_dict = {}
+    for i in aa_find:
+        row = i.strip().split("\n")
+        if len(row) >= 2:
+            name = row[0].strip()
+            aas = [j.strip() for j in row[1:] if j.strip()]
+            aa_res_dict[name] = aas
+    aa_res = [aa_res_dict.get(i, []) for i in name_res]
 
     return name_res, seq_res, aa_res
 
 
 def check_ids_input(ids, kind):
     """check ids input"""
-    ids = ids.upper()
+    ids = ids.upper().strip()
     kind = kind.lower()
-    ids = ids.strip()
+    # find all
+    ids_find = re.findall(">[^>]*", ids)
     name_res = []
     seq_res = []
     aa_res = []
-    for row in ids.split("\n"):
-        row = row.strip()
-        if row:
-            elements = row.split()
-            if len(elements) >= 2:
-                seq_id = elements[0]
-                aas = elements[1:]
-                name, seq = get_seq.get_seq_by_id(seq_id, kind)
-                name_res.append(name)
-                seq_res.append(seq)
-                aa_res.append(aas)
+    for row in ids_find:
+        row = row.split("\n")
+        if len(row) >= 2:
+            identify = row[0][1:].strip()
+            name, seq = get_seq.get_seq_by_id(identify, kind)
+            name_res.append(name)
+            seq_res.append(seq)
+            aa_res.append([i.strip() for i in row[1:] if i.strip()])
     return name_res, seq_res, aa_res
 
 
@@ -353,3 +357,17 @@ def task_detail(request, task_id):
 def record_detail(request, record_id):
     record = Record.objects.get(id=record_id)
     return render(request, "ponsol2web/record_detail.html", {"record": record})
+
+
+def download_dataset_ponsol2(request):
+    path = os.path.join(os.path.dirname(__file__), "./static/ponsol2web/file/PON-Sol2 dataset.zip")
+    file = open(path, 'rb')
+    response = FileResponse(file)
+    return response
+
+
+def download_dataset_ponsol(request):
+    path = os.path.join(os.path.dirname(__file__), "./static/ponsol2web/file/PON-Sol_data.xlsx")
+    file = open(path, 'rb')
+    response = FileResponse(file)
+    return response

@@ -10,8 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
-from pathlib import Path
 import os
+from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -74,11 +74,15 @@ WSGI_APPLICATION = 'PonSol2_Web.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
+if DEBUG:
+    DATABASE_CONFIG_PATH = os.path.join(BASE_DIR, "db_dev.config")
+else:
+    DATABASE_CONFIG_PATH = os.path.join(BASE_DIR, "db.config")
 DATABASES = {
     "default": {
         'ENGINE': 'django.db.backends.mysql',
         "OPTIONS": {
-            'read_default_file': os.path.join(BASE_DIR, "db.config")
+            'read_default_file': DATABASE_CONFIG_PATH
         },
     },
     'other': {
