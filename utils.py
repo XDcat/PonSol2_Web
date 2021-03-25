@@ -13,7 +13,7 @@ import os
 pd.options.display.max_rows = 10  # 表格最大行数为10
 
 # 机器学习相关库
-from sklearn.model_selection import cross_val_score, cross_validate, StratifiedKFold
+from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import confusion_matrix, accuracy_score, multilabel_confusion_matrix
 
 skf = StratifiedKFold(n_splits=10, shuffle=True, random_state=0)  # 10 层交叉验证（随机打乱）（训练/测试集数据分布与原数据分布一致）
