@@ -6,7 +6,7 @@ __project__ = PonSol2_Web
 Fix the Problem, Not the Blame.
 '''
 
-from django.urls import path
+from django.urls import path,include
 from django.views.generic import TemplateView
 
 from . import views
@@ -32,5 +32,8 @@ urlpatterns = [
     path("task/running/", views.get_running_tasks, name="task-running"),
     # download
     path("download/ponsol2_dataset", views.download_dataset_ponsol2, name="download-dataset-ponsol2"),
-    path("download/ponsol_dataset", views.download_dataset_ponsol, name="download-dataset-ponsol")
+    path("download/ponsol_dataset", views.download_dataset_ponsol, name="download-dataset-ponsol"),
+
+    # account
+    path("accounts/", include("django.contrib.auth.urls")),
 ]
