@@ -11,9 +11,11 @@ from django.urls import reverse
 
 from ponsol2 import get_seq
 from ponsol2 import model as PonsolClassifier
+import django.contrib.auth.models as auth_models
 from . import mail_utils
 from .ThreadPool import global_thred_pool
 from .models import Record, Task
+from .forms import UserRegisterForm
 
 log = logging.getLogger("ponsol2_web.views")
 MAX_FILE_SIZE = 20 * 1024 * 8  # 20MB
@@ -371,3 +373,16 @@ def download_dataset_ponsol(request):
     file = open(path, 'rb')
     response = FileResponse(file)
     return response
+
+
+# 账户相关
+def register(request):
+    if request.method == "POST":
+        form = UserRegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            return HttpResponse(f"用户已经创建{user}")
+    else:
+        form = UserRegisterForm()
+
+    return render(request, "registration/register.html", {"form":form})

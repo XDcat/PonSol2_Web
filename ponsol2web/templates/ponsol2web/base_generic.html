@@ -20,14 +20,25 @@
 
     <!-- The justified navigation menu is meant for single line per list item.
          Multiple lines will require custom code not provided by Bootstrap. -->
+    <div class="">
+        <div>
+            <a href="{% url "ponsol2:index" %}" >
+                <img alt="PON-Sol2" style="width:150px; max-height: 52px; padding: 5px;"
+                     src="{% static "ponsol2web/img/ponsol2_logo.png" %}">
+            </a>
+        </div>
+        <div class="fa-align-right">
+            <span><a href="{% url "ponsol2:login" %}">登录</a></span>
+            <span>/</span>
+            <span><a href="{% url "ponsol2:register" %}">注册</a></span>
+            <span>/</span>
+            <span><a href="{% url "ponsol2:logout" %}">退出登录</a> </span>
+            <span>/</span>
+            <span><a href="/zlj/admin">管理员</a> </span>
+        </div>
+    </div>
     <div class="masthead" style="margin-bottom: 40px;">
         <nav>
-            <div class="navbar-header">
-                <a href="{% url "ponsol2:index" %}" class="navbar-left">
-                    <img alt="PON-Sol2" style="width:150px; max-height: 52px; padding: 5px;"
-                         src="{% static "ponsol2web/img/ponsol2_logo.png" %}">
-                </a>
-            </div>
             <ul class="nav nav-justified">
                 <li><a href="{% url "ponsol2:index" %}">Home</a></li>
                 <li><a href="{% url "ponsol2:input" %}">Predict</a></li>
