@@ -46,6 +46,7 @@ urlpatterns = [
     path('accounts/password_change/done/', auth_views.PasswordChangeDoneView.as_view(), name='password_change_done'),  # 登录后修改密码完成
 
     path('accounts/password_reset/', auth_views.PasswordResetView.as_view(
+        template_name="registration/forgot.html",
         success_url="/accounts/password_reset/done/",
     ), name='password_reset'),  # 未登录，修改密码，发送邮件
     path('accounts/password_reset/done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),  # 未登录，修改密码，发送邮件后跳转
