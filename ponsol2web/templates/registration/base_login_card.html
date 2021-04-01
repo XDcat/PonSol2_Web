@@ -1,0 +1,37 @@
+{% extends "registration/base_generic.html" %}
+{% load static %}
+{% block container %}
+    <body class="my-login-page">
+    <section class="h-100">
+        <div class="container h-100">
+            <div class="row justify-content-md-center h-100">
+                <div class="card-wrapper">
+                    <div class="">
+                        <a href="{% url "ponsol2:index" %}">
+                            <img class="img-responsive center-block" style="max-width: 200px; margin: 100px;"src="{% static "ponsol2web/img/ponsol2_logo.png"%}" alt="logo">
+                        </a>
+                    </div>
+{#                    <div class="brand">#}
+{#                        <img src="{% static "registration/img/logo.jpg"%}" alt="logo">#}
+{#                    </div>#}
+                    <div class="card fat">
+                        {% block card-body %}
+
+                        {% endblock %}
+                    </div>
+                    <div class="footer">
+                        Copyright &copy; 2021&mdash; Pon-Sol2
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    </body>
+    <script>
+        ins = document.getElementsByTagName("input");
+        for (var i = 0; i < ins.length; i++) {
+            ins[i].classList.add("form-control");
+        }
+
+    </script>
+{% endblock %}
