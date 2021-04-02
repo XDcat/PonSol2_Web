@@ -39,20 +39,34 @@ urlpatterns = [
     path("accounts/register/", views.register, name='register'),
     # path('accounts/', include('django.contrib.auth.urls')),
 
-    path('accounts/login/', auth_views.LoginView.as_view(), name='login'),  # 登录
-    path('accounts/logout/', auth_views.LogoutView.as_view(), name='logout'),  # 登出
+    # 登录 退出登录
+    path('accounts/login/', auth_views.LoginView.as_view(
+        template_name="registration/login.html",
+    ), name='login'),
+    path('accounts/logout/', auth_views.LogoutView.as_view(
+        next_page="/",
+    ), name='logout'),
 
-    path('accounts/password_change/', auth_views.PasswordChangeView.as_view(), name='password_change'),  # 登陆后修改密码
-    path('accounts/password_change/done/', auth_views.PasswordChangeDoneView.as_view(), name='password_change_done'),  # 登录后修改密码完成
+    # 登录后,修改密码
+    path('accounts/password_change/', auth_views.PasswordChangeView.as_view(), name='password_change'),
+    path('accounts/password_change/done/', auth_views.PasswordChangeDoneView.as_view(), name='password_change_done'),
 
+    # 未登录，修改密码，发送邮件
     path('accounts/password_reset/', auth_views.PasswordResetView.as_view(
         template_name="registration/forgot.html",
         success_url="/accounts/password_reset/done/",
-    ), name='password_reset'),  # 未登录，修改密码，发送邮件
-    path('accounts/password_reset/done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),  # 未登录，修改密码，发送邮件后跳转
-    path('accounts/reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(
-        success_url="/accounts/reset/done/",
-    ), name='password_reset_confirm'),  # 未登录，修改密码，邮件中的连接打开后
-    path('accounts/reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),  # 未登录，修改密码，打开邮件的连接后
+    ), name='password_reset'),
 
+    path('accounts/password_reset/done/', auth_views.PasswordResetDoneView.as_view(
+        template_name="registration/forgot_done.html"
+    ), name='password_reset_done'),
+    # 重置秘密跳转到的位置
+    path('accounts/reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(
+        template_name="registration/forgot_confirm.html",
+        success_url="/accounts/reset/done/",
+    ), name='password_reset_confirm'),
+    # 重置密码完成后
+    path('accounts/reset/done/', auth_views.PasswordResetCompleteView.as_view(
+        template_name="registration/forgot_complete.html",
+    ), name='password_reset_complete'),
 ]

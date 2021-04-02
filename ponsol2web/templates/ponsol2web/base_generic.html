@@ -49,12 +49,29 @@
                     <li><a href="{% url "ponsol2:about" %}">About</a></li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
-                    <p class="navbar-text">
-                        <a href="{% url "ponsol2:login" %}"><strong>Sign in</strong></a>
-                        /
-                        <a href="{% url "ponsol2:register" %}">Sign up</a>
+                    {% if user.is_authenticated %}
+                        <li class="dropdown">
+                            <a href="" class="dropdown-toggle" data-toggle="dropdown"
+                               role="button"
+                               aria-haspopup="true" aria-expanded="false">{{ user.username }}<span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="#">Action</a></li>
+                                <li><a href="#">Another action</a></li>
+                                <li><a href="#">Something else here</a></li>
+                                <li role="separator" class="divider"></li>
+                                <li><a href="#">Separated link</a></li>
+                                <li role="separator" class="divider"></li>
+                                <li><a href="{% url "ponsol2:logout" %}">Logout</a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <p class="navbar-text">
+                            <a href="{% url "ponsol2:login" %}"><strong>Sign in</strong></a>
+                            /
+                            <a href="{% url "ponsol2:register" %}">Sign up</a>
 
-                    </p>
+                        </p>
+                    {% endif %}
                     <form class="nav navbar-form navbar-right">
                         <div class="form-group">
                             <input type="text" class="form-control" placeholder="Search...">
@@ -71,7 +88,8 @@
     {% endblock %}
     <!-- Site footer -->
     <footer class="footer text-center">
-        <p>Last updated: 2021-3-1
+        <p>
+            Copyright &copy; 2021&mdash; Pon-Sol2
         </p>
     </footer>
 

@@ -1,0 +1,42 @@
+{% extends "registration/base_login_card.html" %}
+{% block card-body %}
+    <div class="card-body">
+        <form method="POST" class="my-login-validation" novalidate="">
+            {% csrf_token %}
+            <h4>Password reset sent</h4>
+            <div class="form-group">
+                <div class="form-text text-muted">
+                    We’ve emailed you instructions for setting your password, if an account exists with the email you
+                    entered. You should receive them shortly.
+                    <br>
+                    <br>
+                    If you don’t receive an email, please make sure you’ve entered the address you registered with, and
+                    check your spam folder.
+                </div>
+            </div>
+            <div class="form-group m-0">
+                <p>Back to the home page in <span id="time">5</span> seconds</p>
+            </div>
+        </form>
+    </div>
+
+    <script type="text/javascript">
+        var time_back = 10;
+        $(function () {
+            setTimeout(function () {
+                window.location.href = '{% url "ponsol2:index" %}';
+            }, 1000 * time_back);//5秒后返回首页
+            after();
+        });
+
+        //自动刷新页面上的时间
+        function after() {
+            $("#time").empty().append(time_back);
+            time_back = time_back - 1;
+            setTimeout(function () {
+                after();
+            }, 1000);
+        }
+    </script>
+
+{% endblock %}

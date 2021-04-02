@@ -381,8 +381,8 @@ def register(request):
         form = UserRegisterForm(request.POST)
         if form.is_valid():
             user = form.save()
-            return HttpResponse(f"用户已经创建{user}")
+            return HttpResponseRedirect(reverse("ponsol2:index"))
     else:
         form = UserRegisterForm()
 
-    return render(request, "registration/register.html", {"form":form})
+    return render(request, "registration/register.html", {"form": form})
