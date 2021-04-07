@@ -12,10 +12,12 @@ from django.urls import reverse
 from ponsol2 import get_seq
 from ponsol2 import model as PonsolClassifier
 import django.contrib.auth.models as auth_models
+from django.contrib.auth import login
+from django.contrib.auth.decorators import login_required
 from . import mail_utils
 from .ThreadPool import global_thred_pool
 from .models import Record, Task
-from .forms import UserRegisterForm
+from .forms import RegisterForm, AccountInformationForm
 
 log = logging.getLogger("ponsol2_web.views")
 MAX_FILE_SIZE = 20 * 1024 * 8  # 20MB
@@ -79,6 +81,9 @@ def predict_seq(request):
         log.debug("request.POST = \n%s", request.POST)
         # create task
         task = Task.objects.create(ip=ip, mail=mail, status="running")
+        if request.user.is_authenticated:
+            user = request.user
+            task.user_id = user.id
         task.save()
         log.debug("creat task, id = %s", task.id)
         # check seq and aa
@@ -141,6 +146,9 @@ def predict_ids(request):
         log.debug("request.POST = \n%s", request.POST)
         # create task
         task = Task.objects.create(ip=ip, mail=mail, status="running")
+        if request.user.is_authenticated:
+            user = request.user
+            task.user_id = user.id
         task.save()
         log.debug("creat task, id = %s", task.id)
         # check seq and aa
@@ -378,11 +386,52 @@ def download_dataset_ponsol(request):
 # 账户相关
 def register(request):
     if request.method == "POST":
-        form = UserRegisterForm(request.POST)
+        form = RegisterForm(request.POST)
         if form.is_valid():
-            user = form.save()
+            username = form.cleaned_data["username"]
+            email = form.cleaned_data["email"]
+            first_name = form.cleaned_data["first_name"]
+            last_name = form.cleaned_data["last_name"]
+            password = form.cleaned_data["password"]
+            user = auth_models.User.objects.create_user(
+                username,
+                email=email,
+                password=password,
+                first_name=first_name,
+                last_name=last_name)
+            login(request, user)
+
             return HttpResponseRedirect(reverse("ponsol2:index"))
     else:
-        form = UserRegisterForm()
+        form = RegisterForm()
 
     return render(request, "registration/register.html", {"form": form})
+
+
+# 个人信息
+@login_required()
+def personal_information(request):
+    message = ""
+    user = request.user
+    if request.method == "POST":
+        form = AccountInformationForm(request.POST)
+        if form.is_valid():
+            user.username = form.cleaned_data["username"]
+            user.email = form.cleaned_data["email"]
+            user.first_name = form.cleaned_data["first_name"]
+            user.last_name = form.cleaned_data["last_name"]
+            user.save()
+            message = "Modifications are in effect."
+
+    # 在 form 中填写数据
+    default_information = {
+        "username": user.username,
+        "email": user.email,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+    }
+    form = AccountInformationForm(
+        default_information
+    )
+
+    return render(request, "registration/account_setting.html", {"form": form, "message": message})

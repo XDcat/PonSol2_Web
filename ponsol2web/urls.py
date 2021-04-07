@@ -28,7 +28,7 @@ urlpatterns = [
     path("record/<int:record_id>", views.record_detail, name="record-detail"),
 
     path("about/", views.get_about, name="about"),
-    path("disclaimer/", TemplateView.as_view(template_name="ponsol2web/disclaimer.html"), name="disclaimer"),
+    # path("disclaimer/", TemplateView.as_view(template_name="ponsol2web/disclaimer.html"), name="disclaimer"),
 
     path("task/running/", views.get_running_tasks, name="task-running"),
     # download
@@ -36,10 +36,11 @@ urlpatterns = [
     path("download/ponsol_dataset", views.download_dataset_ponsol, name="download-dataset-ponsol"),
 
     # account
-    path("accounts/register/", views.register, name='register'),
-    # path('accounts/', include('django.contrib.auth.urls')),
+    # path("accounts/setting/", TemplateView.as_view(template_name="registration/setting.html"), name='account-setting'),
+    path("accounts/setting/", views.personal_information, name='account-setting'),
 
-    # 登录 退出登录
+    # 注册 登录 退出登录
+    path("accounts/register/", views.register, name='register'),
     path('accounts/login/', auth_views.LoginView.as_view(
         template_name="registration/login.html",
     ), name='login'),

@@ -45,7 +45,7 @@
                     <li><a href="{% url "ponsol2:index" %}">Home</a></li>
                     <li><a href="{% url "ponsol2:input" %}">Predict</a></li>
                     <li><a href="{% url "ponsol2:task-list" %}">Result</a></li>
-                    <li><a href="{% url "ponsol2:disclaimer" %}">Disclaimer</a></li>
+{#                    <li><a href="{% url "ponsol2:disclaimer" %}">Disclaimer</a></li>#}
                     <li><a href="{% url "ponsol2:about" %}">About</a></li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
@@ -55,11 +55,7 @@
                                role="button"
                                aria-haspopup="true" aria-expanded="false">{{ user.username }}<span class="caret"></span></a>
                             <ul class="dropdown-menu">
-                                <li><a href="#">Action</a></li>
-                                <li><a href="#">Another action</a></li>
-                                <li><a href="#">Something else here</a></li>
-                                <li role="separator" class="divider"></li>
-                                <li><a href="#">Separated link</a></li>
+                                <li><a href="{% url "ponsol2:account-setting" %}">Account settings</a></li>
                                 <li role="separator" class="divider"></li>
                                 <li><a href="{% url "ponsol2:logout" %}">Logout</a></li>
                             </ul>

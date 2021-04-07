@@ -1,0 +1,85 @@
+{% extends "ponsol2web/base_generic.html" %}
+{% block title %} Account {% endblock %}
+
+{% block content %}
+    <div class="page-header">
+        <h1> Account <small></small></h1>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            {% if message %}
+                <div class="col-lg-12">
+                    <div class="alert alert-info" role="alert">{{ message }}</div>
+                </div>
+            {% endif %}
+        </div>
+        <div class="col-md-8">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    Information
+                </div>
+                <div class="panel-body">
+                    <form method="POST" class="my-login-validation" novalidate=""
+                          action="{% url "ponsol2:account-setting" %}">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="{{ form.first_name.id_for_label }}">First Name</label>
+                            {{ form.first_name }}
+                            {% if form.first_name.errors %}
+                                <p class="text-danger">
+                                    {{ form.first_name.errors.0 }}
+                                </p>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.last_name.id_for_label }}">Last Name</label>
+                            {{ form.last_name }}
+                            {% if form.last_name.errors %}
+                                <p class="text-danger">
+                                    {{ form.last_name.errors.0 }}
+                                </p>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.username.id_for_label }}">User Name</label>
+                            {{ form.username }}
+                            {% if form.username.errors %}
+                                <p class="text-danger">
+                                    {{ form.username.errors.0 }}
+                                </p>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.email.id_for_label }}">E-Mail Address</label>
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                                <p class="text-danger">
+                                    {{ form.email.errors.0 }}
+                                </p>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary pull-right" style="margin-left: 20px">
+                                Save
+                            </button>
+                            <a href="{% url "ponsol2:account-setting" %}" class="btn btn-default pull-right">
+                                Reset
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-md-4">
+
+            <div class="panel panel-default">
+                <div class="panel-heading">Password</div>
+                <div class="panel-body">
+                    <a class="btn btn-primary" href="{% url "ponsol2:password_reset" %}"> Change Password </a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

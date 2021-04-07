@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 
 # Create your models here.
@@ -10,6 +11,7 @@ class Task(models.Model):
     finish_time = models.DateTimeField(null=True)
     status = models.TextField(null=True)  # 是否正确预测
     error_msg = models.TextField(max_length=1000, null=True)  # 错误信息
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         mail = self.mail if self.mail else "no email"
