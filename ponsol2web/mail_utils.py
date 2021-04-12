@@ -9,7 +9,7 @@ Fix the Problem, Not the Blame.
 import logging
 import os
 
-from django.core.mail import send_mail
+from django.core.mail import send_mail, EmailMultiAlternatives
 from django.template import loader
 
 from PonSol2_Web.settings import DEBUG
@@ -21,6 +21,7 @@ if DEBUG:
 else:
     RESULT_URL_PRE = "http://structure.bmc.lu.se/PON-Sol2"
 AUTHOR_EMAIL = ["zenglianjie@foxmail.com", ]
+FROM_EMAIL = "zenglianjie@111.com"
 
 
 def send_result(task_id, ):
@@ -33,16 +34,15 @@ def send_result(task_id, ):
         records = task.record_set.all()
         records_info = []
         for i, record in enumerate(records):
-            records_info.append("{}. {}, {}, {}".format(i + 1, record.name, record.aa, record.get_solubility_display()))
+            records_info.append(", ".join(map(str, [i + 1, record.name, record.aa,
+                                                    record.get_solubility_display() if record.get_solubility_display() else "error"])))
 
-        res_list = ["\n".join(records_info), ]
-        res_list = "\n".join(res_list)
         message = loader.render_to_string("ponsol2web/email-templates.html",
-                                          {"res": res_list, "url": f" ({RESULT_URL_PRE}/task/{task_id})"})
+                                          {"res": records_info, "url": f" ({RESULT_URL_PRE}/task/{task_id})"})
         _send_mail(message, to_mail, )
         # 发送给自己
         au_message = loader.render_to_string("ponsol2web/email-templates.html",
-                                             {"res": res_list,
+                                             {"res": records_info,
                                               "url": f" ({RESULT_URL_PRE}/task/{task_id})",
                                               "to_mail": to_mail,
                                               })
@@ -53,11 +53,14 @@ def _send_mail(msg, to_mail, subject="Result of PON-Sol2"):
     if not isinstance(to_mail, (list, tuple)):
         to_mail = [to_mail, ]
     log.info("发送邮件: %s\n%s\n%s", to_mail, subject, msg)
-    res = send_mail(
-        subject,
-        msg,
-        "zenglianjie@111.com",
-        to_mail,
-        fail_silently=False,
-    )
+    mail = EmailMultiAlternatives(subject, from_email=FROM_EMAIL, to=to_mail)
+    # res = send_mail(
+    #     subject,
+    #     msg,
+    #     to_mail,
+    #     fail_silently=False,
+    # )
+    mail.attach_alternative(msg, "text/html")
+    mail.content_subtype = "plain"
+    res = mail.send()
     log.info("发送邮件结果: %s", res)
