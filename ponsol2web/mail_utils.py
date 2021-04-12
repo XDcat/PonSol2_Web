@@ -10,6 +10,7 @@ import logging
 import os
 
 from django.core.mail import send_mail
+from django.template import loader
 
 from PonSol2_Web.settings import DEBUG
 from . import models
@@ -19,13 +20,12 @@ if DEBUG:
     RESULT_URL_PRE = "http://127.0.0.1:8000"
 else:
     RESULT_URL_PRE = "http://structure.bmc.lu.se/PON-Sol2"
-AUTHOR_EMAIL = ["zenglianjie@foxmail.com"]
+AUTHOR_EMAIL = ["zenglianjie@foxmail.com", ]
+
 
 def send_result(task_id, ):
     # load email template
     dir_path = os.path.dirname(__file__)
-    with open(os.path.join(dir_path, "..", "email-templates.txt")) as f:
-        temp = f.read()
 
     task = models.Task.objects.get(id=task_id)
     to_mail = task.mail
@@ -37,14 +37,16 @@ def send_result(task_id, ):
 
         res_list = ["\n".join(records_info), ]
         res_list = "\n".join(res_list)
-        res_list = temp.format(
-            res=res_list,
-            url=f" ({RESULT_URL_PRE}/task/{task_id})",
-        )
-        _send_mail(res_list, to_mail, )
+        message = loader.render_to_string("ponsol2web/email-templates.html",
+                                          {"res": res_list, "url": f" ({RESULT_URL_PRE}/task/{task_id})"})
+        _send_mail(message, to_mail, )
         # 发送给自己
-        res_list += "\nThis email is sent to {}".format(to_mail)
-        _send_mail(res_list, AUTHOR_EMAIL)
+        au_message = loader.render_to_string("ponsol2web/email-templates.html",
+                                             {"res": res_list,
+                                              "url": f" ({RESULT_URL_PRE}/task/{task_id})",
+                                              "to_mail": to_mail,
+                                              })
+        _send_mail(au_message, AUTHOR_EMAIL, "Result of PON-Sol2 -> {}".format(to_mail))
 
 
 def _send_mail(msg, to_mail, subject="Result of PON-Sol2"):

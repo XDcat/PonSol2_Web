@@ -1,12 +1,16 @@
+{% if to_mail %}
+Notice: This message is send to {{ to_mail }}
+Message ->
+{% endif %}
 Dear friend,
 
 Thank you for using PON-Sol2.
 
 The result of your submit is followed:
 
-{res}
+{{ res }}
 
-You can also go to the Result page of PON-Sol2 website to see more detailed information{url}.
+You can also go to the Result page of PON-Sol2 website to see more detailed information{{ url }}.
 
 Best regards,
 
