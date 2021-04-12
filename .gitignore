@@ -10,3 +10,5 @@ gen
 
 # log
 *.log
+
+*__pycache__*
