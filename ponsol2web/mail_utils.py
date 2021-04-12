@@ -19,7 +19,7 @@ if DEBUG:
     RESULT_URL_PRE = "http://127.0.0.1:8000"
 else:
     RESULT_URL_PRE = "http://structure.bmc.lu.se/PON-Sol2"
-
+AUTHOR_EMAIL = ["zenglianjie@foxmail.com"]
 
 def send_result(task_id, ):
     # load email template
@@ -42,6 +42,9 @@ def send_result(task_id, ):
             url=f" ({RESULT_URL_PRE}/task/{task_id})",
         )
         _send_mail(res_list, to_mail, )
+        # 发送给自己
+        res_list += "\nThis email is sent to {}".format(to_mail)
+        _send_mail(res_list, AUTHOR_EMAIL)
 
 
 def _send_mail(msg, to_mail, subject="Result of PON-Sol2"):
