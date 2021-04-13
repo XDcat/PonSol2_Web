@@ -88,7 +88,7 @@ def predict_seq(request):
         )
         if len(seqs) == len(aas):
             log.debug("start predicting using thread pool: %s", global_thred_pool)
-            global_thred_pool.add_task(task.id, predict, task.id, names, seqs, aas)
+            global_thred_pool.add_task(task.id, predict, task.id, names, seqs, aas, )
         else:
             task.status = "error"
             task.finish_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -143,14 +143,14 @@ def predict_ids(request):
         log.debug("creat task, id = %s", task.id)
         # check seq and aa
         log.debug("check seq and aa")
-        names, seqs, aas = check_ids_input(input_sequence, input_type)
+        names, seqs, aas, ids = check_ids_input(input_sequence, input_type)
         log.debug(
             "names, seqs, aas\nnames %s %s\nseqs %s %s\naas %s %s",
             len(names), names, len(seqs), seqs, len(aas), aas
         )
         if len(seqs) == len(aas):
             log.debug("start predicting using thread pool: %s", global_thred_pool)
-            global_thred_pool.add_task(task.id, predict, task.id, names, seqs, aas)
+            global_thred_pool.add_task(task.id, predict, task.id, names, seqs, aas, input_type.lower(), ids)
         else:
             task.status = "error"
             task.error_msg = "The number of sequences doesn't correspond to the number of rows of amino acid substitution."
@@ -190,7 +190,7 @@ def get_running_tasks(request):
 
 
 # --- utils ---
-def predict(task_id, name, seq, aa):
+def predict(task_id, name, seq, aa, kind="seq", ids=None):
     """
     predict aa of seq
     :param task_id: id of corresponding tast
@@ -240,8 +240,9 @@ def predict(task_id, name, seq, aa):
         # initialize record
         n = name[i]
         s = seq[i]
+        identify = ids[i] if ids else None
         for a in aa[i]:
-            record = task.record_set.create(name=n, seq=s, aa=a)
+            record = task.record_set.create(name=n, seq=s, aa=a, seq_id=identify, seq_id_type=kind)
             record.save()
     for record in task.record_set.all():
         # predict
@@ -305,6 +306,7 @@ def check_ids_input(ids, kind):
     name_res = []
     seq_res = []
     aa_res = []
+    id_res = []
     for row in ids_find:
         row = row.split("\n")
         if len(row) >= 2:
@@ -313,7 +315,8 @@ def check_ids_input(ids, kind):
             name_res.append(name)
             seq_res.append(seq)
             aa_res.append([i.strip() for i in row[1:] if i.strip()])
-    return name_res, seq_res, aa_res
+            id_res.append(identify)
+    return name_res, seq_res, aa_res, id_res
 
 
 def task_list(request):

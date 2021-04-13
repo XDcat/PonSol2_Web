@@ -22,11 +22,17 @@ class Record(models.Model):
         ("0", "no-change"),
         ("1", "increase"),
     )
+    SEQ_ID_TYPE = (
+        ("uniprot id", "UniProtKB/Swiss-Prot ID"),
+        ("gi", "Entrez Gene ID"),
+        ("ensembl id", "Ensembl ID"),
+        ("seq", "Only Sequence")
+    )
     task = models.ForeignKey(Task, on_delete=models.CASCADE)
     name = models.TextField(max_length=200)
     seq = models.TextField(max_length=1000)
     seq_id = models.TextField(max_length=100, null=True)
-    seq_id_type = models.TextField(max_length=20, null=True)
+    seq_id_type = models.TextField(max_length=20, null=True, choices=SEQ_ID_TYPE)
     aa = models.TextField(max_length=10)
     solubility = models.TextField(max_length=20, choices=SOLUBILITY_CHANGE, null=True)
     status = models.TextField(max_length=20, null=True, default="running")
