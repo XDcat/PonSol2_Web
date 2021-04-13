@@ -6,18 +6,14 @@
     </div>
     <div class="row" style="padding-left: 20px; padding-right: 20px">
         <p class="lead">
-            PON-Sol2 is a fast predictor based on protein FASTA sequences to identify amino acid substitutions
-            that increase, decrease or have no effect on the protein solubility.
-            To start using PON-Sol2, you just need to provide protein FASTA sequences and amino acid substitutions.
-            For protein FASTA sequences, there are 2 input ways: directly input FASTA sequences or input protein IDs(GI,
-            Ensemble ID or UniProt).
-            You can directly provide the corresponding content or upload files.
+            Provide the sequences either in FASTA format or use an ID (GI, Ensemble ID or UniProt) along with list of
+            variants. You can either write, copy/paste or upload the details in a file.
         </p>
         <a class="btn col-md-6 bg-info" href="{% url "ponsol2:seq-predict" %}">
-            <h4>Input FASTA Sequences</h4>
+            <h4>Input FASTA sequence(s)</h4>
         </a>
         <a class="btn col-md-6 bg-warning" href="{% url "ponsol2:seq-id" %}">
-            <h4> Input Protein IDs </h4>
+            <h4>Input protein ID(s)</h4>
         </a>
     </div>
 {% endblock %}

@@ -15,19 +15,25 @@
     <link href="{% static "ponsol2web/css/justified-nav.css" %}" rel="stylesheet">
 
 </head>
-<body>
+<body style="padding-top: 0">
 <div class="container">
 
     <!-- The justified navigation menu is meant for single line per list item.
          Multiple lines will require custom code not provided by Bootstrap. -->
     <div class="masthead" style="margin-bottom: 40px;">
+        <div class="">
+            <a href="{% url "ponsol2:index" %}" class="">
+                <img alt="PON-Sol2" style="width:130px; padding: 5px;"
+                     src="{% static "ponsol2web/img/ponsol2_logo.png" %}">
+            </a>
+        </div>
         <nav>
-            <div class="navbar-header">
-                <a href="{% url "ponsol2:index" %}" class="navbar-left">
-                    <img alt="PON-Sol2" style="width:150px; max-height: 52px; padding: 5px;"
-                         src="{% static "ponsol2web/img/ponsol2_logo.png" %}">
-                </a>
-            </div>
+            {#            <div class="navbar-header">#}
+            {#                <a href="{% url "ponsol2:index" %}" class="navbar-left">#}
+            {#                    <img alt="PON-Sol2" style="width:150px; max-height: 52px; padding: 5px;"#}
+            {#                         src="{% static "ponsol2web/img/ponsol2_logo.png" %}">#}
+            {#                </a>#}
+            {#            </div>#}
             <ul class="nav nav-justified">
                 <li><a href="{% url "ponsol2:index" %}">Home</a></li>
                 <li><a href="{% url "ponsol2:input" %}">Predict</a></li>
@@ -43,7 +49,7 @@
     {% endblock %}
     <!-- Site footer -->
     <footer class="footer text-center">
-        <p>Last updated: 2021-3-1
+        <p>Last updated: 2021-4-13
         </p>
     </footer>
 

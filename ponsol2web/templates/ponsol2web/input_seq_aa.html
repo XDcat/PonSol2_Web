@@ -2,7 +2,7 @@
 {% block title %} Predict {% endblock %}
 {% block content %}
     <div class="page-header">
-        <h1>Input FASTA Sequences<small></small></h1>
+        <h1>Input FASTA sequence(s)</h1>
     </div>
     <div class="form row">
         {% if error_msg %}
@@ -13,7 +13,7 @@
         <form id="ponsol_form" enctype="multipart/form-data" action="{% url "ponsol2:predict-seq" %}" method="post">
             {% csrf_token %}
             <div class="form-group col-md-12">
-                <label for="seq">FASTA Sequence</label>
+                <label for="seq">FASTA sequence(s)</label>
                 <a id="example_input" href="javascript:set_example()">Example</a>
                 <div class="fix-vertical-center">
                     <div style="padding-left: 0px" class="col-md-8">
@@ -32,7 +32,7 @@
             </div>
 
             <div class="form-group col-md-12">
-                <label class="right-align text-capitalize" for="aa">amino acid substitution</label>
+                    <label class="right-align" for="aa">Amino acid substitution(s)</label>
                 <div class="fix-vertical-center">
                     <div class="col-md-8" style="padding-left: 0px">
                         <textarea class="form-control" rows="10" type="text" name="aa" id="aa"></textarea>

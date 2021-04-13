@@ -2,7 +2,7 @@
 {% block title %} Predict {% endblock %}
 {% block content %}
     <div class="page-header">
-        <h1>Input Protein Ids<small></small></h1>
+        <h1>Input protein ID(s)</h1>
     </div>
     <div class="form row">
         {% if error_msg %}
@@ -13,7 +13,7 @@
         <form id="ponsol_form" action="{% url "ponsol2:predict-ids" %}" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="form-group col-md-12">
-                <label for="seq">ID and amino acid substitution</label>
+                <label for="seq">ID(s) and amino acid substitution(s)</label>
                 <a id="example_input" href="javascript:set_example()">Example</a>
                 <div class="fix-vertical-center">
                     <div style="padding-left: 0px" class="col-md-8">
