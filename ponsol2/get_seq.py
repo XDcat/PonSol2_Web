@@ -34,10 +34,14 @@ def get_seq_from_ensembl(ensembl_id):
     mg = mygene.MyGeneInfo()
     xli = [ensembl_id, ]
     out = mg.querymany(xli, scopes="ensembl.gene", fields="uniprot", species="human")
-    if (len(out) > 0) and ("uniprot" in out[0]) and ("Swiss-Prot" in out[0]["uniprot"]) and (
-            len(out[0]["uniprot"]["Swiss-Prot"]) > 0):
-        uniprot_id = out[0]["uniprot"]["Swiss-Prot"][0]
-        return get_seq_from_uniprot(uniprot_id)
+    if (len(out) > 0) and ("uniprot" in out[0]) and ("Swiss-Prot" in out[0]["uniprot"]):
+        out_swiss_prot = out[0]["uniprot"]["Swiss-Prot"]
+        if isinstance(out_swiss_prot, str):
+            return get_seq_from_uniprot(out_swiss_prot)
+        elif isinstance(out_swiss_prot, list) and len(out_swiss_prot) > 0:
+            return get_seq_from_uniprot(out_swiss_prot[0])
+        else:
+            raise RuntimeError("Can't translate ensembl id into uniprot id. ensembl id = {}".format(ensembl_id))
     else:
         raise RuntimeError("Can't translate ensembl id into uniprot id. ensembl id = {}".format(ensembl_id))
 
