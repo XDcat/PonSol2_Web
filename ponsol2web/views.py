@@ -76,7 +76,7 @@ def predict_seq(request):
 
         log.debug("request.POST = \n%s", request.POST)
         # create task
-        task = Task.objects.create(ip=ip, mail=mail, status="running")
+        task = Task.objects.create(ip=ip, mail=mail, status="running", input_type="seq")
         task.save()
         log.debug("creat task, id = %s", task.id)
         # check seq and aa
@@ -138,7 +138,7 @@ def predict_ids(request):
 
         log.debug("request.POST = \n%s", request.POST)
         # create task
-        task = Task.objects.create(ip=ip, mail=mail, status="running")
+        task = Task.objects.create(ip=ip, mail=mail, status="running", input_type="id")
         task.save()
         log.debug("creat task, id = %s", task.id)
         # check seq and aa
@@ -354,7 +354,10 @@ def task_list(request):
 
 def task_detail(request, task_id):
     task = Task.objects.get(id=task_id)
-    return render(request, "ponsol2web/task_detail.html", {"task": task})
+    id_group, name_group = task.get_record_group()
+    record_group = list(id_group.values()) + list(name_group.values())
+    return render(request, "ponsol2web/task_detail.html",
+                  {"task": task, "record_group": record_group})
 
 
 def record_detail(request, record_id):
@@ -374,3 +377,8 @@ def download_dataset_ponsol(request):
     file = open(path, 'rb')
     response = FileResponse(file)
     return response
+
+
+def protein_detail(request, record_id):
+    record = Record.objects.get(id=record_id)
+    return render(request, "ponsol2web/protein_detail.html", {"record": record})

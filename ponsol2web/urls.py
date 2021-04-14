@@ -25,7 +25,9 @@ urlpatterns = [
     path("task/", views.task_list, name="task-list"),
     path("task/<int:task_id>", views.task_detail, name="task-detail"),
     path("record/<int:record_id>", views.record_detail, name="record-detail"),
+    path("task/protein/<int:record_id>", views.protein_detail, name="protein_detail"),
 
+    # about
     path("about/", views.get_about, name="about"),
     path("disclaimer/", TemplateView.as_view(template_name="ponsol2web/disclaimer.html"), name="disclaimer"),
 

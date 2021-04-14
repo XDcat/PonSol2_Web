@@ -12,19 +12,21 @@
         <h1>Predict Results<small></small></h1>
     </div>
     {% if count > 0 %}
-        <div id="result_list">
-            <table class="table table-hover">
-                <tr>
-                    <th>#</th>
-                    <th>Status</th>
-                    <th>Start Time</th>
-                    <th>End Time</th>
-                    <th>Message</th>
+        <div id="result_list row">
+            <table class="table table-hover" >
+                <tr class="">
+                    <th class="col-md-1">#</th>
+                    <th class="col-md-1">Status</th>
+                    <th class="col-md-1">Input Type</th>
+                    <th class="col-md-2">Start Time</th>
+                    <th class="col-md-2">End Time</th>
+                    <th class="col-md-4">Message</th>
                     {% for task in page_obj %}
                         <tr>
                             <td class="text-capitalize">{{ forloop.counter }}</td>
                             <td class="text-capitalize"><a
                                     href="{% url "ponsol2:task-detail" task.id %}">{{ task.status }}</a></td>
+                            <td>{{ task.get_input_type_display }}</td>
                             <td>{{ task.start_time }}</td>
                             <td>{{ task.finish_time }}</td>
                             <td>

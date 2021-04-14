@@ -1,0 +1,33 @@
+{% extends "ponsol2web/base_generic.html" %}
+{% block title %} Detail {% endblock %}
+
+{% block content %}
+    <div class="page-header">
+        <h1>Protein Detail<small></small></h1>
+    </div>
+    <div class="panel panel-default">
+        <!-- Table -->
+        <table class="table table-bordered table-striped" style="word-break:break-all;">
+            <tr class="row">
+                <td class="col-lg-2">Protein ID</td>
+                <td class="col-lg-10">
+                    {% if record.seq_id %}
+                        {{ record.seq_id }}
+                        {% else %}
+                        No ID provided
+                    {% endif %}
+                </td>
+            </tr>
+            <tr class="row">
+                <td class="col-lg-2">Protein Name</td>
+                <td class="col-lg-10">{{ record.name }}</td>
+            </tr>
+            <tr class="row">
+                <td class="col-lg-2">FASTA Sequence</td>
+                <td class="col-lg-10">{{ record.seq }}</td>
+            </tr>
+        </table>
+    </div>
+    <ul>
+    </ul>
+{% endblock %}
