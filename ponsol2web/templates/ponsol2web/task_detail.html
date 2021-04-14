@@ -13,61 +13,34 @@
         <!-- Default panel contents -->
         <div class="panel-heading">Task Information</div>
         <div class="panel-body">
-            <table class="table table-bordered">
-                <tr>
-                    <td>Task ID</td>
-                    <td class="text-capitalize">{{ task.id }}</td>
-                </tr>
-                <tr>
-                    <td>Status</td>
-                    <td class="text-capitalize">{{ task.status }}</td>
-                </tr>
-                <tr>
-                    <td>Email</td>
-                    <td>
+            <div style="">
+                {% if task.status == "running" %}
+                    <div class="" role="alert">
+                        <strong>Running!</strong> This task(id={{ task.id }}) is running now, please wait a moment.
                         {% if task.mail %}
-                            {{ task.mail }}
-                        {% else %}
-                            <span>There is no e-mail committed.</span>
+                            The result will be sent to <ins>{{ task.mail }}</ins>.
                         {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <td>Start Time</td>
-                    <td>{{ task.start_time }}</td>
-                </tr>
-                <tr>
-                    <td>Finish Time</td>
-                    <td>{{ task.finish_time }}</td>
-                </tr>
-
-                {% if task.error_msg %}
-                    <tr>
-                        <td>Error Message</td>
-                        <td>{{ task.error_msg }}</td>
-                    </tr>
-                {% endif %}
-            </table>
+                        The running time is from {{ task.start_time }} to {{ task.finish_time }}
+                    </div>
+                {% elif task.status == "finished" %}
+                    <div class="" role="alert"><strong>Finished!</strong> This task(id={{ task.id }}) is finished, and the result is the
+                        followed.
+                        {% if task.mail %}
+                            The result will be sent to <ins>{{ task.mail }}</ins>.
+                        {% endif %}
+                        Running time is from {{ task.start_time }} to {{ task.finish_time }}
+                    </div>
+                {% elif task.status == "error" %}
+                    <div class="" role="alert"><strong>Error!</strong> {{ task.error_msg }}</div>            {% endif %}
+            </div>
         </div>
-
-    </div>
-    <div>
-        {% if task.status == "running" %}
-            <div class="alert alert-info" role="alert">Running! This task is running now, please wait a moment.
-            </div>
-        {% elif task.status == "finished" %}
-            <div class="alert alert-success" role="alert">Finished! This task is finished, and the result is the
-                followed.
-            </div>
-        {% elif task.status == "error" %}
-            <div class="alert alert-warning" role="alert">Error! {{ task.error_msg }}</div>            {% endif %}
     </div>
     <div>
 
         {# 分组数据 #}
         {% if record_group %}
             {% for record_list in record_group %}
-                <div class="panel panel-default">
+                <div class="panel panel-primary">
                     <div class="panel-heading">
                         Protein {{ forloop.counter }}:
                         {% if record_list.0.seq_id %}
@@ -120,6 +93,8 @@
                                 <td>
                                     {% if record.error_msg %}
                                         {{ record.error_msg }}
+                                        {% else %}
+                                        -
                                     {% endif %}
                                     {#                                    <a href="{% url "ponsol2:record-detail" record.id %}"> see details</a>#}
                                 </td>

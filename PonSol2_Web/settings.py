@@ -79,13 +79,13 @@ if DEBUG:
 else:
     DATABASE_CONFIG_PATH = os.path.join(BASE_DIR, "db.config")
 DATABASES = {
-    "default": {
+    "other": {
         'ENGINE': 'django.db.backends.mysql',
         "OPTIONS": {
             'read_default_file': DATABASE_CONFIG_PATH
         },
     },
-    'other': {
+    'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
@@ -153,7 +153,7 @@ LOGGING = {
             "class": "logging.handlers.RotatingFileHandler",
             "formatter": "default",
             "level": "DEBUG",
-            "filename": os.path.join(BASE_DIR, "ponsol2_web_debug.log"),  # 必选, 文件名称
+            "filename": os.path.join(BASE_DIR, "log", "ponsol2_web_debug.log"),  # 必选, 文件名称
             "encoding": "utf8",
             "maxBytes": 10485760,  # 日志文件最大个数 1024B * 1024 * 10 = 10MB
             "backupCount": 10,  # 日志文件最大个数
@@ -162,7 +162,7 @@ LOGGING = {
             "class": "logging.handlers.RotatingFileHandler",
             "formatter": "default",
             "level": "INFO",
-            "filename": os.path.join(BASE_DIR, "ponsol2_web_info.log"),  # 必选, 文件名称
+            "filename": os.path.join(BASE_DIR, "log", "ponsol2_web_info.log"),  # 必选, 文件名称
             "encoding": "utf8",
             "maxBytes": 10485760,  # 日志文件最大个数 1024B * 1024 * 10 = 10MB
             "backupCount": 10,  # 日志文件最大个数

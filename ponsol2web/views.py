@@ -42,7 +42,8 @@ def input_seq(request):
 
 
 def input_protein_id(request):
-    return render(request, "ponsol2web/input_protein_id.html")
+    record_count = Record.objects.count()
+    return render(request, "ponsol2web/input_protein_id.html", {"record_count": record_count})
 
 
 def predict_seq(request):
