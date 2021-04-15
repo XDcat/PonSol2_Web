@@ -178,9 +178,9 @@ LOGGING = {
 }
 
 # 邮箱设置
-EMAIL_HOST = "smtp.111.com"
+EMAIL_HOST = "smtp.email.cn"
 EMAIL_PORT = "465"
-EMAIL_HOST_USER = "zenglianjie@111.com"
-EMAIL_HOST_PASSWORD = "SKJDzcNpEhN7g3Fq"
+EMAIL_HOST_USER = "Report@PONSol2.email.cn"
+EMAIL_HOST_PASSWORD = "RHmncgMynZ4YPKZf"
 EMAIL_USE_SSL = True
 EMAIL_TIMEOUT = 5

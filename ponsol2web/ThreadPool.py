@@ -39,4 +39,5 @@ class ThreadPool:
 
 
 # global thread pool
-global_thred_pool = ThreadPool()
+global_thread_pool = ThreadPool()
+global_mail_thread_pool = ThreadPool(max_thread=1)

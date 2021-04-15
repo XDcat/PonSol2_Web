@@ -12,7 +12,7 @@ from django.urls import reverse
 from ponsol2 import get_seq
 from ponsol2 import model as PonsolClassifier
 from . import mail_utils
-from .ThreadPool import global_thred_pool
+from .ThreadPool import global_thread_pool
 from .models import Record, Task
 
 log = logging.getLogger("ponsol2_web.views")
@@ -88,8 +88,8 @@ def predict_seq(request):
             len(names), names, len(seqs), seqs, len(aas), aas
         )
         if len(seqs) == len(aas):
-            log.debug("start predicting using thread pool: %s", global_thred_pool)
-            global_thred_pool.add_task(task.id, predict, task.id, names, seqs, aas, )
+            log.debug("start predicting using thread pool: %s", global_thread_pool)
+            global_thread_pool.add_task(task.id, predict, task.id, names, seqs, aas, )
         else:
             task.status = "error"
             task.finish_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -144,14 +144,18 @@ def predict_ids(request):
         log.debug("creat task, id = %s", task.id)
         # check seq and aa
         log.debug("check seq and aa")
-        names, seqs, aas, ids = check_ids_input(input_sequence, input_type)
+        try:
+            names, seqs, aas, ids = check_ids_input(input_sequence, input_type)
+        except Exception as e:
+            error_msg = "Can't get FASTA sequence using input id(s). Please check the input id(s)."
+            raise RuntimeError(error_msg)
         log.debug(
             "names, seqs, aas\nnames %s %s\nseqs %s %s\naas %s %s",
             len(names), names, len(seqs), seqs, len(aas), aas
         )
         if len(seqs) == len(aas):
-            log.debug("start predicting using thread pool: %s", global_thred_pool)
-            global_thred_pool.add_task(task.id, predict, task.id, names, seqs, aas, input_type.lower(), ids)
+            log.debug("start predicting using thread pool: %s", global_thread_pool)
+            global_thread_pool.add_task(task.id, predict, task.id, names, seqs, aas, input_type.lower(), ids)
         else:
             task.status = "error"
             task.error_msg = "The number of sequences doesn't correspond to the number of rows of amino acid substitution."
@@ -182,7 +186,7 @@ def get_about(request):
 
 
 def get_running_tasks(request):
-    l = global_thred_pool.check_future()
+    l = global_thread_pool.check_future()
     if l:
         l = str(l)
     else:
@@ -291,7 +295,7 @@ def check_seq_input(seq, aa):
         row = i.strip().split("\n")
         if len(row) >= 2:
             name = row[0].strip()
-            aas = [j.strip() for j in row[1:] if j.strip()]
+            aas = list(set([j.strip() for j in row[1:] if j.strip()]))
             aa_res_dict[name] = aas
     aa_res = [aa_res_dict.get(i, []) for i in name_res]
 
@@ -315,7 +319,7 @@ def check_ids_input(ids, kind):
             name, seq = get_seq.get_seq_by_id(identify, kind)
             name_res.append(name)
             seq_res.append(seq)
-            aa_res.append([i.strip() for i in row[1:] if i.strip()])
+            aa_res.append(list(set([i.strip() for i in row[1:] if i.strip()])))
             id_res.append(identify)
     return name_res, seq_res, aa_res, id_res
 

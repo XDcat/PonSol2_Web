@@ -18,15 +18,18 @@
                     <div class="" role="alert">
                         <strong>Running!</strong> This task(id={{ task.id }}) is running now, please wait a moment.
                         {% if task.mail %}
-                            The result will be sent to <ins>{{ task.mail }}</ins>.
+                            The result will be sent to
+                            <ins>{{ task.mail }}</ins>.
                         {% endif %}
-                        The running time is from {{ task.start_time }} to {{ task.finish_time }}
+                        <br>You can click F5 to refresh page.
                     </div>
                 {% elif task.status == "finished" %}
-                    <div class="" role="alert"><strong>Finished!</strong> This task(id={{ task.id }}) is finished, and the result is the
+                    <div class="" role="alert"><strong>Finished!</strong> This task(id={{ task.id }}) is finished, and
+                        the result is the
                         followed.
                         {% if task.mail %}
-                            The result will be sent to <ins>{{ task.mail }}</ins>.
+                            The result will be sent to
+                            <ins>{{ task.mail }}</ins>.
                         {% endif %}
                         Running time is from {{ task.start_time }} to {{ task.finish_time }}
                     </div>
@@ -93,7 +96,7 @@
                                 <td>
                                     {% if record.error_msg %}
                                         {{ record.error_msg }}
-                                        {% else %}
+                                    {% else %}
                                         -
                                     {% endif %}
                                     {#                                    <a href="{% url "ponsol2:record-detail" record.id %}"> see details</a>#}
@@ -104,5 +107,20 @@
                 </div>
             {% endfor %}
         {% endif %}
+    </div>
+    <div>
+        <ul class="nav nav-list">
+            <li class="divider"></li>
+        </ul>
+        <h5 class="page-header"></h5>
+        <div>
+            <br>
+            <p>If you find that there is no result or some variation have been missed, it is usually due to an incorrect
+                input format. Please check the following:</p>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;1. See the error message on the page.</p>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;2. When inputting FASTA sequence(s), the protein name is not provided or the
+                protein name is incorrect.</p>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;3. When inputting protein ID(s), ID is invalid.</p>
+        </div>
     </div>
 {% endblock %}

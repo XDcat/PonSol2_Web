@@ -7,12 +7,13 @@ Fix the Problem, Not the Blame.
 '''
 
 import logging
-import os
+import os, time
 
 from django.core.mail import send_mail, EmailMultiAlternatives
 from django.template import loader
 
-from PonSol2_Web.settings import DEBUG
+from PonSol2_Web.settings import DEBUG, EMAIL_HOST_USER
+from .ThreadPool import global_mail_thread_pool
 from . import models
 
 log = logging.getLogger("ponsol2_web.mail")
@@ -21,14 +22,14 @@ if DEBUG:
 else:
     RESULT_URL_PRE = "http://structure.bmc.lu.se/PON-Sol2"
 AUTHOR_EMAIL = ["zenglianjie@foxmail.com", ]
-FROM_EMAIL = "zenglianjie@111.com"
+FROM_EMAIL = EMAIL_HOST_USER
 
 
 def send_result(task_id, ):
     # load email template
-    dir_path = os.path.dirname(__file__)
-
     task = models.Task.objects.get(id=task_id)
+    id_group, name_group = task.get_record_group()
+    record_group = list(id_group.values()) + list(name_group.values())
     to_mail = task.mail
     if to_mail:
         records = task.record_set.all()
@@ -37,19 +38,23 @@ def send_result(task_id, ):
             records_info.append(", ".join(map(str, [i + 1, record.name, record.aa,
                                                     record.get_solubility_display() if record.get_solubility_display() else "error"])))
 
-        message = loader.render_to_string("ponsol2web/email-templates.html",
-                                          {"res": records_info, "url": f" ({RESULT_URL_PRE}/task/{task_id})"})
-        _send_mail(message, to_mail, )
-        # 发送给自己
-        au_message = loader.render_to_string("ponsol2web/email-templates.html",
-                                             {"res": records_info,
+        message = loader.render_to_string("ponsol2web/email/email.html",
+                                          {
+                                              "res": records_info,
                                               "url": f" ({RESULT_URL_PRE}/task/{task_id})",
-                                              "to_mail": to_mail,
-                                              })
-        _send_mail(au_message, AUTHOR_EMAIL, "Result of PON-Sol2 -> {}".format(to_mail))
+                                              "task": task,
+                                              "record_group": record_group,
+                                          })
+        global_mail_thread_pool.add_task(f"mail_{task_id}", _send_mail, message, to_mail,
+                                         "Result of PON-Sol2 - Task{}".format(task.id), 10)
+        # _send_mail(message, to_mail, subject="Result of PON-Sol2 - Task{}".format(task.id))
+        # 发送给自己
+        global_mail_thread_pool.add_task(f"mail_{task_id}_au", _send_mail, message, AUTHOR_EMAIL,
+                                         "Result of PON-Sol2 - Task{} -> {}".format(task.id, to_mail), 60)
+        # _send_mail(message, AUTHOR_EMAIL, "Result of PON-Sol2 - Task{} -> {}".format(task.id, to_mail))
 
 
-def _send_mail(msg, to_mail, subject="Result of PON-Sol2"):
+def _send_mail(msg, to_mail, subject="Result of PON-Sol2", sleep_time=10):
     if not isinstance(to_mail, (list, tuple)):
         to_mail = [to_mail, ]
     log.info("发送邮件: %s\n%s\n%s", to_mail, subject, msg)
@@ -64,3 +69,5 @@ def _send_mail(msg, to_mail, subject="Result of PON-Sol2"):
     mail.content_subtype = "plain"
     res = mail.send()
     log.info("发送邮件结果: %s", res)
+    log.info("休眠%s秒", sleep_time)
+    time.sleep(sleep_time)
