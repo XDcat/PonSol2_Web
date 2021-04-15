@@ -295,17 +295,22 @@ def predict(task_id, name, seq, aa, kind="seq", ids=None):
         task.save()
 
     log.debug("create records")
+    records = []
     for i in range(N):
         # initialize record
         n = name[i]
         s = seq[i]
         identify = ids[i] if ids else None
-        log.debug("create records")
         for a in aa[i]:
-            record = task.record_set.create(name=n, seq=s, aa=a, seq_id=identify, seq_id_type=kind)
-            record.save()
+            # record = task.record_set.create(name=n, seq=s, aa=a, seq_id=identify, seq_id_type=kind)
+            # record.save()
+            # log.debug(a)
+            record = Record(task_id=task_id, name=n, seq=s, aa=a, seq_id=identify, seq_id_type=kind)
+            records.append(record)
+    log.debug("bulk create")
+    Record.objects.bulk_create(records)
     log.debug("start predict")
-    for record in task.record_set.all():
+    for record in records:
         # predict
         s = record.seq
         a = record.aa
@@ -392,7 +397,7 @@ def check_protein_input(seq, seq_id, seq_id_type):
             res_name = rows[0].strip()
             res_seq = "".join([i.strip() for i in rows[1:]])
     elif seq_id and seq_id_type:
-        res_id = re.sub("\s", "", seq_id)
+        res_id = re.sub("\s|>", "", seq_id)
         res_name, res_seq = get_seq.get_seq_by_id(res_id, seq_id_type)
     else:
         raise RuntimeError("No valid input.")
@@ -474,7 +479,8 @@ def download_example_input_aas(request):
 
 
 def download_example_input_aa_and_id(request):
-    path = os.path.join(os.path.dirname(__file__), "./static/ponsol2web/file/example-ID(s) and amino acid substitution(s).txt")
+    path = os.path.join(os.path.dirname(__file__),
+                        "./static/ponsol2web/file/example-ID(s) and amino acid substitution(s).txt")
     file = open(path, 'rb')
     response = FileResponse(file, content_type="application/x-download")
     return response
