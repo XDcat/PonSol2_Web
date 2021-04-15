@@ -6,6 +6,7 @@
 conda env create -f .\environment.yml
 ```
 
+
 ## 在 docker 中部署(推荐)
 1.  获取`docker pull xdcat/centos:ponsol2`
 2.  运行`docker run -tid -p8091:3306 -p8090:80 --name ponsol2 --privileged=true xdcat/centos:ponsol2 /usr/sbin/init`
