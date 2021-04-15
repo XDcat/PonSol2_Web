@@ -25,13 +25,16 @@
                         </strong>
                     </div>
                     <div class="col-md-3" style="margin-top: auto; margin-bottom: auto;">
-                        <label for="sequenceInputFile">Update ID and variation file</label>
+                        <label for="sequenceInputFile">Update ID and variation file
+                            <a class="btn btn-primary btn-xs text-capitalize" href="{% url "ponsol2:download-example-input-fasta-id" %}">
+                                <span class="glyphicon glyphicon-download-alt"></span>download example
+                            </a>
+                        </label>
                         <input type="file" id="sequenceInputFile" name="sequenceInputFile">
                     </div>
                 </div>
             </div>
             <div>
-
                 <div class="col-lg-8">
                     <label> ID Type </label>
                 </div>

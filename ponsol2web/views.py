@@ -12,12 +12,13 @@ from django.urls import reverse
 from ponsol2 import get_seq
 from ponsol2 import model as PonsolClassifier
 from . import mail_utils
-from .ThreadPool import global_thread_pool
+from .ThreadPool import global_thread_pool, global_mail_thread_pool
 from .models import Record, Task
 
 log = logging.getLogger("ponsol2_web.views")
 MAX_FILE_SIZE = 20 * 1024 * 8  # 20MB
 MAX_PAGE_NUM = 6
+A_LIST = ('A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y')
 
 
 def get_ip(request):
@@ -44,6 +45,11 @@ def input_seq(request):
 def input_protein_id(request):
     record_count = Record.objects.count()
     return render(request, "ponsol2web/input_protein_id.html", {"record_count": record_count})
+
+
+def input_protein(request):
+    record_count = Record.objects.count()
+    return render(request, "ponsol2web/input_protein.html", {"record_count": record_count})
 
 
 def predict_seq(request):
@@ -176,6 +182,63 @@ def predict_ids(request):
         return render(request, "ponsol2web/input_protein_id.html", {"error_msg": error_msg})
 
 
+def predict_protein(request):
+    log.debug("predict: input protein")
+    task = None
+    error_msg = None
+    try:
+        # get input
+        log.debug("get input")
+        log.debug("request.POST = \n%s", request.POST)
+        ip = get_ip(request)
+        mail = request.POST.get("mail", None)
+        input_sequence = request.POST.get("seq", None)
+        input_id = request.POST.get("input_id", None)
+        input_id_type = request.POST.get("type", None)
+        # create task
+        task = Task.objects.create(ip=ip, mail=mail, status="running", input_type="id")
+        task.save()
+        log.debug("creat task, id = %s", task.id)
+        # check seq and aa
+        log.debug("check seq and aa")
+        try:
+            pname, pseq, pid = check_protein_input(input_sequence, input_id, input_id_type)
+        except Exception as e:
+            error_msg = "No valid input."
+            raise RuntimeError(error_msg)
+        paa = []
+        for i in range(1, len(pseq) + 1):
+            a1 = pseq[i - 1]
+            for a2 in A_LIST:
+                if a2 != a1:
+                    one_aa = "{}{}{}".format(a1, i, a2)
+                    paa.append(one_aa.upper())
+        seqs = [pseq]
+        names = [pname]
+        aas = [paa]
+        ids = [pid]
+        log.debug(
+            "names, seqs, aas\nnames %s %s\nseqs %s %s\naas %s %s",
+            len(names), names, len(seqs), seqs, len(aas), aas
+        )
+        input_type = "protein"
+        log.debug("start predicting using thread pool: %s", global_thread_pool)
+        global_thread_pool.add_task(task.id, predict, task.id, names, seqs, aas, input_type.lower(), ids)
+        return HttpResponseRedirect(reverse("ponsol2:task-detail", args=(task.id,)))
+    except Exception as e:
+        if not error_msg:
+            error_msg = "There are some errors with input. Please have a check."
+        log.warning(error_msg)
+        log.info(traceback.format_exc())
+        log.info(e)
+        if task:
+            task.status = "error"
+            task.finish_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            task.error_msg = error_msg
+            task.save()
+        return render(request, "ponsol2web/input_protein.html", {"error_msg": error_msg})
+
+
 def get_detail(request, record_id):
     record = get_object_or_404(Record, pk=record_id)
     return render(request, "ponsol2web/detail.html", {"record": record})
@@ -183,15 +246,6 @@ def get_detail(request, record_id):
 
 def get_about(request):
     return render(request, "ponsol2web/about.html", None)
-
-
-def get_running_tasks(request):
-    l = global_thread_pool.check_future()
-    if l:
-        l = str(l)
-    else:
-        l = "There is no running task."
-    return HttpResponse(l)
 
 
 # --- utils ---
@@ -246,13 +300,16 @@ def predict(task_id, name, seq, aa, kind="seq", ids=None):
         n = name[i]
         s = seq[i]
         identify = ids[i] if ids else None
+        log.debug("create records")
         for a in aa[i]:
             record = task.record_set.create(name=n, seq=s, aa=a, seq_id=identify, seq_id_type=kind)
             record.save()
+    log.debug("start predict")
     for record in task.record_set.all():
         # predict
         s = record.seq
         a = record.aa
+        log.debug("start %s", a)
         try:
             pred = classifier.predict(s, a)[0]
             record.solubility = pred
@@ -324,6 +381,24 @@ def check_ids_input(ids, kind):
     return name_res, seq_res, aa_res, id_res
 
 
+def check_protein_input(seq, seq_id, seq_id_type):
+    log.debug("seq=%s, seq_id=%s, seq_id_type=%s", seq, seq_id, seq_id_type)
+    res_name = res_seq = res_id = None
+    if seq:
+        seq = seq.upper()
+        seqs = re.findall(">[^>]*", seq)
+        if len(seqs) > 0:
+            rows = seqs[0].split("\n")
+            res_name = rows[0].strip()
+            res_seq = "".join([i.strip() for i in rows[1:]])
+    elif seq_id and seq_id_type:
+        res_id = re.sub("\s", "", seq_id)
+        res_name, res_seq = get_seq.get_seq_by_id(res_id, seq_id_type)
+    else:
+        raise RuntimeError("No valid input.")
+    return res_name, res_seq, res_id
+
+
 def task_list(request):
     """return the list of task by ip"""
     ip = get_ip(request)
@@ -384,6 +459,45 @@ def download_dataset_ponsol(request):
     return response
 
 
+def download_example_input_fasta_seq(request):
+    path = os.path.join(os.path.dirname(__file__), "./static/ponsol2web/file/example-FASTA sequence(s).txt")
+    file = open(path, 'rb')
+    response = FileResponse(file, content_type="application/x-download")
+    return response
+
+
+def download_example_input_aas(request):
+    path = os.path.join(os.path.dirname(__file__), "./static/ponsol2web/file/example-Amino acid substitution(s).txt")
+    file = open(path, 'rb')
+    response = FileResponse(file, content_type="application/x-download")
+    return response
+
+
+def download_example_input_aa_and_id(request):
+    path = os.path.join(os.path.dirname(__file__), "./static/ponsol2web/file/example-ID(s) and amino acid substitution(s).txt")
+    file = open(path, 'rb')
+    response = FileResponse(file, content_type="application/x-download")
+    return response
+
+
 def protein_detail(request, record_id):
     record = Record.objects.get(id=record_id)
     return render(request, "ponsol2web/protein_detail.html", {"record": record})
+
+
+def get_running_tasks(request):
+    l = global_thread_pool.check_future()
+    if l:
+        l = str(l)
+    else:
+        l = "There is no running task."
+    return HttpResponse(l)
+
+
+def get_running_mail(request):
+    l = global_mail_thread_pool.check_future()
+    if l:
+        l = str(l)
+    else:
+        l = "There is no running task."
+    return HttpResponse(l)

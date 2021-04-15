@@ -7,7 +7,8 @@ from collections import defaultdict
 class Task(models.Model):
     INPUT_TYPE = (
         ("id", "ID"),
-        ("seq", "Sequence")
+        ("seq", "Sequence"),
+        ("protein", "Protein")
     )
     ip = models.GenericIPAddressField()
     mail = models.EmailField(null=True)

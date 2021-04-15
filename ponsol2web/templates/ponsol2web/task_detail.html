@@ -6,7 +6,7 @@
 {% block content %}
 
     <div class="page-header">
-        <h1>Task Detail<small></small></h1>
+        <h1>Prediction Result</h1>
     </div>
     {#    <h3>Task Detail</h3>#}
     <div class="panel panel-default">
@@ -66,7 +66,7 @@
                         <p>
                             Protein name: {{ record_list.0.name | shorten_str }};
                             Protein sequence: {{ record_list.0.seq | shorten_str }};
-                            <a class="" href="{% url "ponsol2:protein_detail" record_list.0.id %}">Learn more</a>
+                            <a class="" href="{% url "ponsol2:protein_detail" record_list.0.id %}">more</a>
                         </p>
                     </div>
                     <table class="table">
@@ -115,12 +115,20 @@
         <h5 class="page-header"></h5>
         <div>
             <br>
-            <p>If you find that there is no result or some variation have been missed, it is usually due to an incorrect
-                input format. Please check the following:</p>
-            <p>&nbsp;&nbsp;&nbsp;&nbsp;1. See the error message on the page.</p>
-            <p>&nbsp;&nbsp;&nbsp;&nbsp;2. When inputting FASTA sequence(s), the protein name is not provided or the
-                protein name is incorrect.</p>
-            <p>&nbsp;&nbsp;&nbsp;&nbsp;3. When inputting protein ID(s), ID is invalid.</p>
+            <p>
+                If you find that there is no result or some variation have been missed, it is usually due to an incorrect
+                input format.
+                Please check wheather variation can match corresponding FASTA sequence.
+            </p>
         </div>
     </div>
+    {% if task.status == "running" %}
+        <script type="text/javascript">
+            function myrefresh() {
+                window.location.reload();
+            }
+
+            setTimeout("myrefresh()", 5000);
+        </script>
+    {% endif %}
 {% endblock %}

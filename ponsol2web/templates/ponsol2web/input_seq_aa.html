@@ -25,7 +25,11 @@
                         </strong>
                     </div>
                     <div class="col-md-3" style="margin-top: auto; margin-bottom: auto;">
-                        <label for="sequenceInputFile">Upload sequence file in FASTA format</label>
+                        <label for="sequenceInputFile">Upload sequence file in FASTA format
+                            <a class="btn btn-primary btn-xs text-capitalize" href="{% url "ponsol2:download-example-input-fasta-seq" %}">
+                                <span class="glyphicon glyphicon-download-alt"></span>download example
+                            </a>
+                        </label>
                         <input type="file" id="sequenceInputFile" name="sequenceInputFile">
                     </div>
                 </div>
@@ -43,7 +47,11 @@
                         </strong>
                     </div>
                     <div class="col-md-3">
-                        <label for="aasInputFile">Upload variation file</label>
+                        <label for="aasInputFile">Upload variation file
+                            <a class="btn btn-primary btn-xs text-capitalize" href="{% url "ponsol2:download-example-input-fasta-aa" %}">
+                                <span class="glyphicon glyphicon-download-alt"></span>download example
+                            </a>
+                        </label>
                         <input type="file" id="aasInputFile" name="assInputFile">
                     </div>
                 </div>
