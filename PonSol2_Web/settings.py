@@ -178,9 +178,9 @@ LOGGING = {
 }
 
 # 邮箱设置
-EMAIL_HOST = "smtp.email.cn"
+EMAIL_HOST = "imap.111.com"
 EMAIL_PORT = "465"
-EMAIL_HOST_USER = "Report@PONSol2.email.cn"
-EMAIL_HOST_PASSWORD = "RHmncgMynZ4YPKZf"
+EMAIL_HOST_USER = "PONSol2.Report@111.com"
+EMAIL_HOST_PASSWORD = "iFktbDE2pzdaZDaC"
 EMAIL_USE_SSL = True
 EMAIL_TIMEOUT = 5
