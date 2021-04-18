@@ -441,8 +441,13 @@ def task_detail(request, task_id):
     task = Task.objects.get(id=task_id)
     id_group, name_group = task.get_record_group()
     record_group = list(id_group.values()) + list(name_group.values())
-    return render(request, "ponsol2web/task_detail.html",
-                  {"task": task, "record_group": record_group})
+    data = {"task": task, "record_group": record_group}
+    if task.input_type == "protein":
+        # 如果是全序列预测
+        return render(request, "ponsol2web/task_detail_for_protein.html", data)
+    else:
+        # 普通的预测
+        return render(request, "ponsol2web/task_detail.html", data)
 
 
 def record_detail(request, record_id):
