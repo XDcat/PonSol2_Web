@@ -12,7 +12,7 @@ from django.urls import reverse
 from ponsol2 import get_seq
 from ponsol2 import model as PonsolClassifier
 from . import mail_utils
-from .ThreadPool import global_thread_pool, global_mail_thread_pool
+from .ThreadPool import global_thread_pool, global_mail_thread_pool, global_protein_all_thread_pool
 from .models import Record, Task
 
 log = logging.getLogger("ponsol2_web.views")
@@ -196,7 +196,7 @@ def predict_protein(request):
         input_id = request.POST.get("input_id", None)
         input_id_type = request.POST.get("type", None)
         # create task
-        task = Task.objects.create(ip=ip, mail=mail, status="running", input_type="id")
+        task = Task.objects.create(ip=ip, mail=mail, status="running", input_type="protein")
         task.save()
         log.debug("creat task, id = %s", task.id)
         # check seq and aa
@@ -221,9 +221,12 @@ def predict_protein(request):
             "names, seqs, aas\nnames %s %s\nseqs %s %s\naas %s %s",
             len(names), names, len(seqs), seqs, len(aas), aas
         )
-        input_type = "protein"
+        if input_id_type is not None and pid is not None:
+            input_type = input_id_type
+        else:
+            input_type = "seq"
         log.debug("start predicting using thread pool: %s", global_thread_pool)
-        global_thread_pool.add_task(task.id, predict, task.id, names, seqs, aas, input_type.lower(), ids)
+        global_protein_all_thread_pool.add_task(task.id, predict, task.id, names, seqs, aas, input_type.lower(), ids)
         return HttpResponseRedirect(reverse("ponsol2:task-detail", args=(task.id,)))
     except Exception as e:
         if not error_msg:
@@ -302,13 +305,10 @@ def predict(task_id, name, seq, aa, kind="seq", ids=None):
         s = seq[i]
         identify = ids[i] if ids else None
         for a in aa[i]:
-            # record = task.record_set.create(name=n, seq=s, aa=a, seq_id=identify, seq_id_type=kind)
-            # record.save()
-            # log.debug(a)
             record = Record(task_id=task_id, name=n, seq=s, aa=a, seq_id=identify, seq_id_type=kind)
             records.append(record)
     log.debug("bulk create")
-    Record.objects.bulk_create(records)
+    # Record.objects.bulk_create(records)
     log.debug("start predict")
     for record in records:
         # predict
@@ -440,13 +440,16 @@ def task_list(request):
 def task_detail(request, task_id):
     task = Task.objects.get(id=task_id)
     id_group, name_group = task.get_record_group()
-    record_group = list(id_group.values()) + list(name_group.values())
-    data = {"task": task, "record_group": record_group}
+    data = {"task": task, }
     if task.input_type == "protein":
         # 如果是全序列预测
+        protein_information = task.get_protein_information()
+        data["protein_info"] = protein_information
         return render(request, "ponsol2web/task_detail_for_protein.html", data)
     else:
         # 普通的预测
+        record_group = list(id_group.values()) + list(name_group.values())
+        data["record_group"] = record_group
         return render(request, "ponsol2web/task_detail.html", data)
 
 

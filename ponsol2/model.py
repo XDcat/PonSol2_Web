@@ -46,6 +46,8 @@ class PonSol2:
         :return: 预测结果
         """
         all_features = feature_extraction.get_all_features(seq, aa)
+        if aa[0] == aa[-1]:
+            return 0
         pred = self._predict(all_features)
         return pred
 
