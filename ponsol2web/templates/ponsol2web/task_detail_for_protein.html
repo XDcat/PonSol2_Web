@@ -1,0 +1,104 @@
+{% extends "ponsol2web/base_generic.html" %}
+{% load my_filter %}
+{% block title %} Detail {% endblock %}
+
+{% block content_title %} Result Detail{% endblock %}
+{% block content %}
+
+    <div class="page-header">
+        <h1>Prediction Result</h1>
+    </div>
+    {#    <h3>Task Detail</h3>#}
+    <div class="panel panel-default">
+        <!-- Default panel contents -->
+        <div class="panel-heading">Task Information</div>
+        <div class="panel-body">
+            <div style="">
+                {% if task.status == "running" %}
+                    <div class="" role="alert">
+                        <strong>Running!</strong> This task(id={{ task.id }}) is running now, please wait a moment.
+                        {% if task.mail %}
+                            The result will be sent to
+                            <ins>{{ task.mail }}</ins>.
+                        {% endif %}
+                    </div>
+                {% elif task.status == "finished" %}
+                    <div class="" role="alert"><strong>Finished!</strong> This task(id={{ task.id }}) is finished, and
+                        the result is the
+                        followed.
+                        {% if task.mail %}
+                            The result will be sent to
+                            <ins>{{ task.mail }}</ins>.
+                        {% endif %}
+                        Running time is from {{ task.start_time }} to {{ task.finish_time }}
+                    </div>
+                {% elif task.status == "error" %}
+                    <div class="" role="alert"><strong>Error!</strong> {{ task.error_msg }}</div>            {% endif %}
+            </div>
+        </div>
+    </div>
+    <div>
+        {#    每一个蛋白质的数据#}
+        {% if protein_info %}
+            {% for pi in protein_info %}
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        Protein {{ forloop.counter }}:
+                        {% if  pi.seq_id %}
+                            {{pi.seq_id_type}} is {{ pi.seq_id }}
+                        {% else %}
+                            No ID provided
+                        {% endif %}
+                    </div>
+                    <div class="panel-body">
+                        <p>
+                            Protein name: {{ pi.name | shorten_str }};
+                            Protein sequence: {{ pi.seq | shorten_str }};
+                            <a class="" href="{% url "ponsol2:protein_detail" pi.record_id %}">more</a>
+                        </p>
+                    </div>
+                    <table class="table">
+                        <tr class="">
+                            {% for column in pi.data.columns %}
+                                <th>{{ column }}</th>
+                            {% endfor %}
+                        </tr>
+                        {% for row in pi.data.data %}
+                            <tr class="">
+                                {% for ele in row.1 %}
+                                    <td>
+                                        {{ ele }}
+                                    </td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+    <div>
+        <ul class="nav nav-list">
+            <li class="divider"></li>
+        </ul>
+        <h5 class="page-header"></h5>
+        <div>
+            <br>
+            <p>
+                If you find that there is no result or some variation have been missed, it is usually due to an
+                incorrect
+                input format.
+                Please check wheather variation can match corresponding FASTA sequence.
+            </p>
+        </div>
+    </div>
+    {% if task.status == "running" %}
+        <script type="text/javascript">
+            function myrefresh() {
+                window.location.reload();
+            }
+
+            setTimeout("myrefresh()", 5000);
+        </script>
+    {% endif %}
+{% endblock %}
