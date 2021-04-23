@@ -13,6 +13,14 @@ from . import views
 
 app_name = "ponsol2"
 urlpatterns = [
+    # hide
+    path("task/", views.task_list, name="task-list"),
+    path("task/running/", views.get_running_tasks, name="task-running"),
+    path("task/email/template", TemplateView.as_view(template_name="ponsol2web/email/email.html")),
+    path("task/email/template/task_detail", TemplateView.as_view(template_name="ponsol2web/email/task_detail.html")),
+    path("task/email/", views.get_running_mail, name="mail-running"),
+
+    # index
     path("", views.index, name="index"),
     # path("input/", views.input_seq_aa, name="input"),  # 输入数据
     path("input/index/", TemplateView.as_view(template_name="ponsol2web/predict_index.html"), name="input"),  # 输入数据
@@ -24,7 +32,6 @@ urlpatterns = [
     path("predict/protein/", views.predict_protein, name="predict-protein"),
 
     # result
-    path("task/", views.task_list, name="task-list"),
     path("task/<int:task_id>", views.task_detail, name="task-detail"),
     path("record/<int:record_id>", views.record_detail, name="record-detail"),
     path("task/protein/<int:record_id>", views.protein_detail, name="protein_detail"),
@@ -33,8 +40,6 @@ urlpatterns = [
     path("about/", views.get_about, name="about"),
     path("disclaimer/", TemplateView.as_view(template_name="ponsol2web/disclaimer.html"), name="disclaimer"),
 
-    path("task/running/", views.get_running_tasks, name="task-running"),
-    path("task/email/", views.get_running_mail, name="mail-running"),
     # download
     path("download/ponsol2_dataset", views.download_dataset_ponsol2, name="download-dataset-ponsol2"),
     path("download/ponsol_dataset", views.download_dataset_ponsol, name="download-dataset-ponsol"),
