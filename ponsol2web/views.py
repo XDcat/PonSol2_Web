@@ -341,25 +341,42 @@ def check_seq_input(seq, aa):
     seq = seq.upper()
     aa = aa.upper()
     seqs = re.findall(">[^>]*", seq)
-    # find names and sequences
+    aa_find = re.findall(">[^>]*", aa.strip())
     name_res = []
     seq_res = []
-    for seq in seqs:
-        rows = seq.split("\n")
-        name = rows[0].strip()
-        seq = "".join([i.strip() for i in rows[1:]])
-        name_res.append(name.strip())
-        seq_res.append(seq.strip())
+    if len(seqs) == 0:
+        # 正则无法匹配到，尝试当前字串为序列
+        seqs = re.sub("\s", "", seq)
+        if len(set(list(seqs)) - set(A_LIST)) == 0:
+            # 当前 seqs 只由 氨基酸组成
+            name_res = ["No name"]
+            seq_res = [seqs]
+    else:
+        for seq in seqs:
+            rows = seq.split("\n")
+            name = rows[0].strip()
+            seq = "".join([i.strip() for i in rows[1:]])
+            name_res.append(name.strip())
+            seq_res.append(seq.strip())
     # find all AAS
-    aa_find = re.findall(">[^>]*", aa.strip())
-    aa_res_dict = {}
-    for i in aa_find:
-        row = i.strip().split("\n")
-        if len(row) >= 2:
-            name = row[0].strip()
-            aas = list(set([j.strip() for j in row[1:] if j.strip()]))
-            aa_res_dict[name] = aas
-    aa_res = [aa_res_dict.get(i, []) for i in name_res]
+    if len(aa_find) == 0:
+        # 正则没有匹配到，认为所有行为替换
+        aa_res = []
+        for i in aa.split("\n"):
+            i = i.strip()
+            if len(i) >= 3:
+                if i[0] in A_LIST and i[-1] in A_LIST and i[1: -1].isdigit():
+                    aa_res.append(i)
+        aa_res = [aa_res]
+    else:
+        aa_res_dict = {}
+        for i in aa_find:
+            row = i.strip().split("\n")
+            if len(row) >= 2:
+                name = row[0].strip()
+                aas = list(set([j.strip() for j in row[1:] if j.strip()]))
+                aa_res_dict[name] = aas
+        aa_res = [aa_res_dict.get(i, []) for i in name_res]
 
     return name_res, seq_res, aa_res
 
