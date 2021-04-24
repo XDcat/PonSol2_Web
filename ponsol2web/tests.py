@@ -2,10 +2,15 @@ from django.test import TestCase
 from ponsol2web import models
 from ponsol2web.views import A_LIST
 import pandas as pd
+import pdfkit
 
 
 # Create your tests here.
 class OneTest(TestCase):
+    def test_generate_pdf(self):
+        url = "http://127.0.0.1:8000/task/44?type=email"
+        url = "http://127.0.0.1:8000/task/13?type=email"
+        pdf = pdfkit.from_url(url, r"C:\Users\17844\Desktop\protein_1.pdf")
     def test_predict_protein_html(self):
         task = models.Task.objects.get(id=83)
         id_group, name_group = task.get_record_group()

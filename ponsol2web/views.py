@@ -374,7 +374,8 @@ def check_seq_input(seq, aa):
             row = i.strip().split("\n")
             if len(row) >= 2:
                 name = row[0].strip()
-                aas = list(set([j.strip() for j in row[1:] if j.strip()]))
+                aas = [j.strip() for j in row[1:] if j.strip()]
+                # aas = list(set(aas))
                 aa_res_dict[name] = aas
         aa_res = [aa_res_dict.get(i, []) for i in name_res]
 
@@ -398,7 +399,10 @@ def check_ids_input(ids, kind):
             name, seq = get_seq.get_seq_by_id(identify, kind)
             name_res.append(name)
             seq_res.append(seq)
-            aa_res.append(list(set([i.strip() for i in row[1:] if i.strip()])))
+            # aa_res.append(list(set([i.strip() for i in row[1:] if i.strip()])))
+            aas = [j.strip() for j in row[1:] if j.strip()]
+            # aas = list(set(aas))
+            aa_res.append(aas)
             id_res.append(identify)
     return name_res, seq_res, aa_res, id_res
 
@@ -455,6 +459,7 @@ def task_list(request):
 
 
 def task_detail(request, task_id):
+    is_email = request.GET.get("type", None)
     task = Task.objects.get(id=task_id)
     id_group, name_group = task.get_record_group()
     data = {"task": task, }
@@ -462,12 +467,21 @@ def task_detail(request, task_id):
         # 如果是全序列预测
         protein_information = task.get_protein_information()
         data["protein_info"] = protein_information
-        return render(request, "ponsol2web/task_detail_for_protein.html", data)
+        if is_email:
+            # 邮件 pdf 的模板页面
+            return render(request, "ponsol2web/email/task_detail_for_protein.html", data)
+        else:
+            # 直接返回界面
+            return render(request, "ponsol2web/task_detail_for_protein.html", data)
     else:
         # 普通的预测
         record_group = list(id_group.values()) + list(name_group.values())
         data["record_group"] = record_group
-        return render(request, "ponsol2web/task_detail.html", data)
+        if is_email:
+            # 邮件 pdf 的模板页面
+            return render(request, "ponsol2web/email/task_detail.html", data)
+        else:
+            return render(request, "ponsol2web/task_detail.html", data)
 
 
 def record_detail(request, record_id):

@@ -1,42 +1,11 @@
-{% extends "ponsol2web/base_generic.html" %}
+{% extends "ponsol2web/email/base_generic.html" %}
+{% load static %}
 {% load my_filter %}
 {% block title %} Detail {% endblock %}
 
 {% block content_title %} Result Detail{% endblock %}
 {% block content %}
 
-    <div class="page-header">
-        <h1>Prediction Result</h1>
-    </div>
-    {#    <h3>Task Detail</h3>#}
-    <div class="panel panel-default">
-        <!-- Default panel contents -->
-        <div class="panel-heading">Task Information</div>
-        <div class="panel-body">
-            <div style="">
-                {% if task.status == "running" %}
-                    <div class="" role="alert">
-                        <strong>Running!</strong> This task(id={{ task.id }}) is running now, please wait a moment.
-                        {% if task.mail %}
-                            The result will be sent to
-                            <ins>{{ task.mail }}</ins>.
-                        {% endif %}
-                    </div>
-                {% elif task.status == "finished" %}
-                    <div class="" role="alert"><strong>Finished!</strong> This task(id={{ task.id }}) is finished, and
-                        the result is the
-                        followed.
-                        {% if task.mail %}
-                            The result will be sent to
-                            <ins>{{ task.mail }}</ins>.
-                        {% endif %}
-                        Running time is from {{ task.start_time }} to {{ task.finish_time }}
-                    </div>
-                {% elif task.status == "error" %}
-                    <div class="" role="alert"><strong>Error!</strong> {{ task.error_msg }}</div>            {% endif %}
-            </div>
-        </div>
-    </div>
     <div>
         {#    每一个蛋白质的数据#}
         {% if protein_info %}
@@ -54,7 +23,6 @@
                         <p>
                             Protein name: {{ pi.name | shorten_str }};
                             Protein sequence: {{ pi.seq | shorten_str }};
-                            <a class="" href="{% url "ponsol2:protein_detail" pi.record_id %}">more</a>
                         </p>
                     </div>
                     <table class="table">
@@ -81,7 +49,7 @@
         <ul class="nav nav-list">
             <li class="divider"></li>
         </ul>
-        <h5 class="page-header"></h5>
+        <h5 class="page-header" style="margin: 10px"></h5>
         <div>
             <br>
             <p>
