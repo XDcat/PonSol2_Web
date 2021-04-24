@@ -9,6 +9,8 @@ Fix the Problem, Not the Blame.
 import logging
 import os, time, random
 import textwrap
+import traceback
+import pdfkit
 
 from django.core.mail import send_mail, EmailMultiAlternatives
 from django.template import loader
@@ -31,54 +33,45 @@ FROM_EMAIL = EMAIL_HOST_USER
 def send_result(task_id, ):
     # load email template
     task = models.Task.objects.get(id=task_id)
-    # id_group, name_group = task.get_record_group()
-    # record_group = list(id_group.values()) + list(name_group.values())
     to_mail = task.mail
     if to_mail:
-        # records = task.record_set.all()
-        # records_info = []
-        # for i, record in enumerate(records):
-        #     records_info.append(", ".join(map(str, [i + 1, record.name, record.aa,
-        #                                             record.get_solubility_display() if record.get_solubility_display() else "error"])))
-
         message = loader.render_to_string("ponsol2web/email/email.html",
                                           {
-                                              # "res": records_info,
                                               "url": f" ({RESULT_URL_PRE}/task/{task_id})",
                                               "task": task,
-                                              # "record_group": record_group,
                                           })
-        # pdf = generatePDF(task)
-        pdf = None
-        log.debug("创建线程发送邮件给用户")
+        pdf = generatePDF(task)
+        log.debug("单独使用邮件线程池，发送邮件")
         global_mail_thread_pool.add_task(f"mail_{task_id}", _send_mail, message, to_mail,
                                          "Result of PON-Sol2 - Task{}".format(task.id), 30, pdf=pdf)
         # 发送给自己
-        log.debug("创建线程发送邮件给管理员")
         global_mail_thread_pool.add_task(f"mail_{task_id}_au", _send_mail, message, AUTHOR_EMAIL,
                                          "Result of PON-Sol2 - Task{} -> {}".format(task.id, to_mail), 60, pdf=pdf)
 
 
-def _send_mail(msg, to_mail, subject="Result of PON-Sol2", pdf=None, sleep_time=10, ):
-    log.info("发送邮件: %s\n%s\n%s", to_mail, subject, textwrap.shorten(msg, 100))
+def _send_mail(msg, to_mail, subject="Result of PON-Sol2", sleep_time=10, pdf=None):
     if not isinstance(to_mail, (list, tuple)):
         to_mail = [to_mail, ]
-    mail = EmailMultiAlternatives(subject, from_email=FROM_EMAIL, to=to_mail)
-    mail.attach_alternative(msg, "text/html")
-    mail.content_subtype = "plain"
-    mail.attach("predict result.pdf", pdf)
-    res = mail.send()
-    log.info("发送邮件结果: %s", res)
-    sleep_time = random.randint(max(0, sleep_time - 5), sleep_time + 5)
-    log.info("休眠%s秒", sleep_time)
-    time.sleep(sleep_time)
+    log.info("发送邮件: %s\n%s\n%s", to_mail, subject, textwrap.shorten(msg, 100))
+    try:
+        mail = EmailMultiAlternatives(subject, from_email=FROM_EMAIL, to=to_mail)
+        mail.attach_alternative(msg, "text/html")
+        mail.attach(subject + ".pdf", pdf)
+        mail.content_subtype = "plain"
+        res = mail.send()
+        log.info("发送邮件结果: %s", res)
+        sleep_time = random.randint(max(0, sleep_time - 5), sleep_time + 5)
+        log.info("休眠%s秒", sleep_time)
+        time.sleep(sleep_time)
+    except Exception:
+        log.warning("发送邮件失败: %s", traceback.format_exc())
 
 
 def generatePDF(task):
     log.info("生成 pdf")
     # 生成 pdf 并返回
     pdf = pdfkit.from_url(
-        "http://127.0.0.1:8000" + reverse("ponsol2:task-detail", args=(task.id, )) + "?type=email",
+        "http://127.0.0.1:80" + reverse("ponsol2:task-detail", args=(task.id,)) + "?type=email",
         False)
     log.info("生成 pdf 完成！")
     return pdf
