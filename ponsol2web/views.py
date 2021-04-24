@@ -12,12 +12,13 @@ from django.urls import reverse
 from ponsol2 import get_seq
 from ponsol2 import model as PonsolClassifier
 from . import mail_utils
-from .ThreadPool import global_thread_pool
+from .ThreadPool import global_thread_pool, global_mail_thread_pool, global_protein_all_thread_pool
 from .models import Record, Task
 
 log = logging.getLogger("ponsol2_web.views")
 MAX_FILE_SIZE = 20 * 1024 * 8  # 20MB
 MAX_PAGE_NUM = 6
+A_LIST = ('A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y')
 
 
 def get_ip(request):
@@ -44,6 +45,11 @@ def input_seq(request):
 def input_protein_id(request):
     record_count = Record.objects.count()
     return render(request, "ponsol2web/input_protein_id.html", {"record_count": record_count})
+
+
+def input_protein(request):
+    record_count = Record.objects.count()
+    return render(request, "ponsol2web/input_protein.html", {"record_count": record_count})
 
 
 def predict_seq(request):
@@ -176,6 +182,66 @@ def predict_ids(request):
         return render(request, "ponsol2web/input_protein_id.html", {"error_msg": error_msg})
 
 
+def predict_protein(request):
+    log.debug("predict: input protein")
+    task = None
+    error_msg = None
+    try:
+        # get input
+        log.debug("get input")
+        log.debug("request.POST = \n%s", request.POST)
+        ip = get_ip(request)
+        mail = request.POST.get("mail", None)
+        input_sequence = request.POST.get("seq", None)
+        input_id = request.POST.get("input_id", None)
+        input_id_type = request.POST.get("type", None)
+        # create task
+        task = Task.objects.create(ip=ip, mail=mail, status="running", input_type="protein")
+        task.save()
+        log.debug("creat task, id = %s", task.id)
+        # check seq and aa
+        log.debug("check seq and aa")
+        try:
+            pname, pseq, pid = check_protein_input(input_sequence, input_id, input_id_type)
+        except Exception as e:
+            error_msg = "No valid input."
+            raise RuntimeError(error_msg)
+        paa = []
+        for i in range(1, len(pseq) + 1):
+            a1 = pseq[i - 1]
+            for a2 in A_LIST:
+                if a2 != a1:
+                    one_aa = "{}{}{}".format(a1, i, a2)
+                    paa.append(one_aa.upper())
+        seqs = [pseq]
+        names = [pname]
+        aas = [paa]
+        ids = [pid]
+        log.debug(
+            "names, seqs, aas\nnames %s %s\nseqs %s %s\naas %s %s",
+            len(names), names, len(seqs), seqs, len(aas), aas
+        )
+        if input_id_type is not None and pid is not None:
+            input_type = input_id_type
+        else:
+            input_type = "seq"
+        log.debug("start predicting using thread pool: %s", global_thread_pool)
+        global_protein_all_thread_pool.add_task(task.id, predict, task.id, names, seqs, aas, input_type.lower(), ids)
+        return HttpResponseRedirect(reverse("ponsol2:task-detail", args=(task.id,)))
+    except Exception as e:
+        if not error_msg:
+            error_msg = "There are some errors with input. Please have a check."
+        log.warning(error_msg)
+        log.info(traceback.format_exc())
+        log.info(e)
+        if task:
+            task.status = "error"
+            task.finish_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            task.error_msg = error_msg
+            task.save()
+        return render(request, "ponsol2web/input_protein.html", {"error_msg": error_msg})
+
+
 def get_detail(request, record_id):
     record = get_object_or_404(Record, pk=record_id)
     return render(request, "ponsol2web/detail.html", {"record": record})
@@ -183,15 +249,6 @@ def get_detail(request, record_id):
 
 def get_about(request):
     return render(request, "ponsol2web/about.html", None)
-
-
-def get_running_tasks(request):
-    l = global_thread_pool.check_future()
-    if l:
-        l = str(l)
-    else:
-        l = "There is no running task."
-    return HttpResponse(l)
 
 
 # --- utils ---
@@ -241,18 +298,23 @@ def predict(task_id, name, seq, aa, kind="seq", ids=None):
         task.save()
 
     log.debug("create records")
+    records = []
     for i in range(N):
         # initialize record
         n = name[i]
         s = seq[i]
         identify = ids[i] if ids else None
         for a in aa[i]:
-            record = task.record_set.create(name=n, seq=s, aa=a, seq_id=identify, seq_id_type=kind)
-            record.save()
-    for record in task.record_set.all():
+            record = Record(task_id=task_id, name=n, seq=s, aa=a, seq_id=identify, seq_id_type=kind)
+            records.append(record)
+    log.debug("bulk create")
+    # Record.objects.bulk_create(records)
+    log.debug("start predict")
+    for record in records:
         # predict
         s = record.seq
         a = record.aa
+        log.debug("start %s", a)
         try:
             pred = classifier.predict(s, a)[0]
             record.solubility = pred
@@ -279,25 +341,43 @@ def check_seq_input(seq, aa):
     seq = seq.upper()
     aa = aa.upper()
     seqs = re.findall(">[^>]*", seq)
-    # find names and sequences
+    aa_find = re.findall(">[^>]*", aa.strip())
     name_res = []
     seq_res = []
-    for seq in seqs:
-        rows = seq.split("\n")
-        name = rows[0].strip()
-        seq = "".join([i.strip() for i in rows[1:]])
-        name_res.append(name.strip())
-        seq_res.append(seq.strip())
+    if len(seqs) == 0:
+        # 正则无法匹配到，尝试当前字串为序列
+        seqs = re.sub("\s", "", seq)
+        if len(set(list(seqs)) - set(A_LIST)) == 0:
+            # 当前 seqs 只由 氨基酸组成
+            name_res = ["No name"]
+            seq_res = [seqs]
+    else:
+        for seq in seqs:
+            rows = seq.split("\n")
+            name = rows[0].strip()
+            seq = "".join([i.strip() for i in rows[1:]])
+            name_res.append(name.strip())
+            seq_res.append(seq.strip())
     # find all AAS
-    aa_find = re.findall(">[^>]*", aa.strip())
-    aa_res_dict = {}
-    for i in aa_find:
-        row = i.strip().split("\n")
-        if len(row) >= 2:
-            name = row[0].strip()
-            aas = list(set([j.strip() for j in row[1:] if j.strip()]))
-            aa_res_dict[name] = aas
-    aa_res = [aa_res_dict.get(i, []) for i in name_res]
+    if len(aa_find) == 0:
+        # 正则没有匹配到，认为所有行为替换
+        aa_res = []
+        for i in aa.split("\n"):
+            i = i.strip()
+            if len(i) >= 3:
+                if i[0] in A_LIST and i[-1] in A_LIST and i[1: -1].isdigit():
+                    aa_res.append(i)
+        aa_res = [aa_res]
+    else:
+        aa_res_dict = {}
+        for i in aa_find:
+            row = i.strip().split("\n")
+            if len(row) >= 2:
+                name = row[0].strip()
+                aas = [j.strip() for j in row[1:] if j.strip()]
+                # aas = list(set(aas))
+                aa_res_dict[name] = aas
+        aa_res = [aa_res_dict.get(i, []) for i in name_res]
 
     return name_res, seq_res, aa_res
 
@@ -319,9 +399,30 @@ def check_ids_input(ids, kind):
             name, seq = get_seq.get_seq_by_id(identify, kind)
             name_res.append(name)
             seq_res.append(seq)
-            aa_res.append(list(set([i.strip() for i in row[1:] if i.strip()])))
+            # aa_res.append(list(set([i.strip() for i in row[1:] if i.strip()])))
+            aas = [j.strip() for j in row[1:] if j.strip()]
+            # aas = list(set(aas))
+            aa_res.append(aas)
             id_res.append(identify)
     return name_res, seq_res, aa_res, id_res
+
+
+def check_protein_input(seq, seq_id, seq_id_type):
+    log.debug("seq=%s, seq_id=%s, seq_id_type=%s", seq, seq_id, seq_id_type)
+    res_name = res_seq = res_id = None
+    if seq:
+        seq = seq.upper()
+        seqs = re.findall(">[^>]*", seq)
+        if len(seqs) > 0:
+            rows = seqs[0].split("\n")
+            res_name = rows[0].strip()
+            res_seq = "".join([i.strip() for i in rows[1:]])
+    elif seq_id and seq_id_type:
+        res_id = re.sub("\s|>", "", seq_id)
+        res_name, res_seq = get_seq.get_seq_by_id(res_id, seq_id_type)
+    else:
+        raise RuntimeError("No valid input.")
+    return res_name, res_seq, res_id
 
 
 def task_list(request):
@@ -358,11 +459,29 @@ def task_list(request):
 
 
 def task_detail(request, task_id):
+    is_email = request.GET.get("type", None)
     task = Task.objects.get(id=task_id)
     id_group, name_group = task.get_record_group()
-    record_group = list(id_group.values()) + list(name_group.values())
-    return render(request, "ponsol2web/task_detail.html",
-                  {"task": task, "record_group": record_group})
+    data = {"task": task, }
+    if task.input_type == "protein":
+        # 如果是全序列预测
+        protein_information = task.get_protein_information()
+        data["protein_info"] = protein_information
+        if is_email:
+            # 邮件 pdf 的模板页面
+            return render(request, "ponsol2web/email/task_detail_for_protein.html", data)
+        else:
+            # 直接返回界面
+            return render(request, "ponsol2web/task_detail_for_protein.html", data)
+    else:
+        # 普通的预测
+        record_group = list(id_group.values()) + list(name_group.values())
+        data["record_group"] = record_group
+        if is_email:
+            # 邮件 pdf 的模板页面
+            return render(request, "ponsol2web/email/task_detail.html", data)
+        else:
+            return render(request, "ponsol2web/task_detail.html", data)
 
 
 def record_detail(request, record_id):
@@ -384,6 +503,46 @@ def download_dataset_ponsol(request):
     return response
 
 
+def download_example_input_fasta_seq(request):
+    path = os.path.join(os.path.dirname(__file__), "./static/ponsol2web/file/example-FASTA sequence(s).txt")
+    file = open(path, 'rb')
+    response = FileResponse(file, content_type="application/x-download")
+    return response
+
+
+def download_example_input_aas(request):
+    path = os.path.join(os.path.dirname(__file__), "./static/ponsol2web/file/example-Amino acid substitution(s).txt")
+    file = open(path, 'rb')
+    response = FileResponse(file, content_type="application/x-download")
+    return response
+
+
+def download_example_input_aa_and_id(request):
+    path = os.path.join(os.path.dirname(__file__),
+                        "./static/ponsol2web/file/example-ID(s) and amino acid substitution(s).txt")
+    file = open(path, 'rb')
+    response = FileResponse(file, content_type="application/x-download")
+    return response
+
+
 def protein_detail(request, record_id):
     record = Record.objects.get(id=record_id)
     return render(request, "ponsol2web/protein_detail.html", {"record": record})
+
+
+def get_running_tasks(request):
+    l = global_thread_pool.check_future()
+    if l:
+        l = str(l)
+    else:
+        l = "There is no running task."
+    return HttpResponse(l)
+
+
+def get_running_mail(request):
+    l = global_mail_thread_pool.check_future()
+    if l:
+        l = str(l)
+    else:
+        l = "There is no running task."
+    return HttpResponse(l)

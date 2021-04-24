@@ -17,81 +17,26 @@
 </head>
 <body style="padding-top: 0">
 <div class="container">
+    {# 发送给管理者 #}
     {% if to_mail %}
         <p>
             Notice: This message is send to {{ to_mail }} <br>
             Message ->
         </p>
     {% endif %}
+    {# 招呼 #}
     <p>
-    <p>
-        Dear friend, <br><br>
+        Dear user, <br><br>
+        The attached is the result of your submit.<br><br>
+
+    {#            <p>#}
+    {#                If you find that there is no result or some variation have been missed, it is usually due to an#}
+    {#                incorrect input format.<br>#}
+    {#                Please check wheather variation can match corresponding FASTA sequence.#}
+    {#                <br><br>#}
+    {#            </p>#}
+    {# 结尾语 #}
         Thank you for using PON-Sol2. <br><br>
-        The result of your submit is followed: <br><br>
-    </p>
-
-    <div>
-        {# 分组数据 #}
-        {% if record_group %}
-            {% for record_list in record_group %}
-                <div>
-                <p>
-                    Protein {{ forloop.counter }}:
-                    {% if record_list.0.seq_id %}
-                        {{ record_list.0.get_seq_id_type_display }} is {{ record_list.0.seq_id }};
-                    {% else %}
-                        No ID provided;
-                    {% endif %}
-                    Protein name: {{ record_list.0.name | shorten_str }};
-                    Protein sequence: {{ record_list.0.seq | shorten_str }};
-                </p>
-                <table>
-                    <tr>
-                        <td>#</td>
-                        <td>Variation</td>
-                        <td>Predict result</td>
-                        <td>Remark</td>
-                    </tr>
-                    {% for record in record_list %}
-                        <tr class="row">
-
-                            <td> {{ forloop.counter }}</td>
-                            <td>
-                                {{ record.aa }}
-                            </td>
-                            <td>
-                                {% if record.solubility %}
-                                    {{ record.get_solubility_display }}
-                                {% else %}
-                                    <span class="text-danger">
-                                                {{ record.status }}
-                                        </span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if record.error_msg %}
-                                    {{ record.error_msg }}
-                                {% else %}
-                                    -
-                                {% endif %}
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </table>
-            {% endfor %}
-            {% else %}
-            No valid variation input.
-        {% endif %}
-        <div>
-            <br>
-            <p>If you find that there is no result or some variation have been missed, it is usually due to an incorrect input format. Please check the following:</p>
-            <p>&nbsp;&nbsp;&nbsp;&nbsp;1. See the error message on the page.</p>
-            <p>&nbsp;&nbsp;&nbsp;&nbsp;2. When inputting FASTA sequence(s), the protein name is not provided or the protein name is incorrect.</p>
-            <p>&nbsp;&nbsp;&nbsp;&nbsp;3. When inputting protein ID(s), ID is invalid.</p>
-        </div>
-        <p>
-        <br>You can also go to the Result page of PON-Sol2 website to see more detailed information{{ url }}. <br><br>
-
         Best regards, <br><br>
 
         =============================================================================================== <br>
@@ -100,8 +45,8 @@
         <br>
         2. Department of Experimental Medical Science, Lund University, BMC B13, SE-221 84 Lund, Sweden. <br>
         * If you have any problems, please contact Lianjie Zeng (1709404010@stu.suda.edu.cn). <br>
-        </p>
-        </div>
+    </p>
+</div>
 </body>
 <!-- jQuery (Bootstrap 的 JavaScript 插件需要引入 jQuery) -->
 <script src="{% static "ponsol2web/js/jquery.min.js" %}"></script>

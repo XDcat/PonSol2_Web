@@ -1,0 +1,83 @@
+{% extends "ponsol2web/base_generic.html" %}
+{% block title %} Predict {% endblock %}
+{% block content %}
+    <div class="page-header">
+        <h1>Protein Predict</h1>
+    </div>
+    <div class="form row">
+        {% if error_msg %}
+            <div class="col-lg-12">
+                <div class="alert alert-warning" role="alert">{{ error_msg }}</div>
+            </div>
+        {% endif %}
+        <form id="ponsol_form" enctype="multipart/form-data" action="{% url "ponsol2:predict-protein" %}" method="post">
+            {% csrf_token %}
+            <div class="form-group col-md-12">
+                <div class="fix-vertical-center ">
+                    <div style="padding-left: 0px" class="col-md-6">
+                        <label for="seq">FASTA sequence</label>
+                        <a id="example_input" href="javascript:set_example_seq()">Example</a>
+                        <textarea class="form-control" rows="10" name="seq" id="seq"></textarea>
+                    </div>
+                    <div class="col-md-1">
+                        <strong>
+                            OR
+                        </strong>
+                    </div>
+                    <div class="col-md-5" style="margin-top: auto; margin-bottom: auto;">
+                        <div class="form-group">
+                            <label for="input_id">ID</label>
+                            <a id="example_input" href="javascript:set_example_id()">Example</a>
+                            <div class="fix-vertical-center">
+                                <div style="padding-left: 0px" class="col-md-12">
+                                    <input type="text" class="form-control" rows="10" name="input_id" id="input_id"></input>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="">
+                                <label> ID Type </label>
+                            </div>
+                            <div class="text-capitalize">
+                                <label class="radio-inline">
+                                    <input type="radio" name="type" id="inlineRadio3" value="uniprot id">UniProtKB/Swiss-Prot
+                                    ID</label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="type" id="inlineRadio1" value="gi">Entrez gene ID
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="type" id="inlineRadio2" value="ensembl id">Ensembl ID
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group col-md-12">
+                <div class="" style="padding-left: 0px">
+                    <label class="right-align" for="mail">E-mail</label>
+                    <input type="email" name="mail" class="form-control" id="mail" placeholder="Email" required>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <input class="btn btn-primary text-capitalize btn-block" type="submit" value="start predict">
+            </div>
+            {% if record_count %}
+                <div class="text-right col-md-12" style="margin-top: 20px">Number of
+                    calculations: {{ record_count }}</div>
+            {% endif %}
+        </form>
+    </div>
+    <script type="text/javascript">
+        function set_example_seq() {
+            var seq_input = document.getElementById("seq")
+            seq_input.value = ">Example Protein\nSTSYNMDRFINK"
+        }
+        function set_example_id() {
+            var seq_input = document.getElementById("input_id")
+            seq_input.value = "298119"
+            var seq_kind = document.getElementById("inlineRadio1")
+            seq_kind.checked = true;
+        }
+    </script>
+{% endblock %}

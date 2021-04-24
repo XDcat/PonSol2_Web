@@ -7,7 +7,8 @@ Fix the Problem, Not the Blame.
 '''
 
 import logging
-import os, time
+import os, time, random
+import textwrap
 
 from django.core.mail import send_mail, EmailMultiAlternatives
 from django.template import loader
@@ -46,7 +47,7 @@ def send_result(task_id, ):
                                               "record_group": record_group,
                                           })
         global_mail_thread_pool.add_task(f"mail_{task_id}", _send_mail, message, to_mail,
-                                         "Result of PON-Sol2 - Task{}".format(task.id), 10)
+                                         "Result of PON-Sol2 - Task{}".format(task.id), 30)
         # _send_mail(message, to_mail, subject="Result of PON-Sol2 - Task{}".format(task.id))
         # 发送给自己
         global_mail_thread_pool.add_task(f"mail_{task_id}_au", _send_mail, message, AUTHOR_EMAIL,
@@ -57,7 +58,7 @@ def send_result(task_id, ):
 def _send_mail(msg, to_mail, subject="Result of PON-Sol2", sleep_time=10):
     if not isinstance(to_mail, (list, tuple)):
         to_mail = [to_mail, ]
-    log.info("发送邮件: %s\n%s\n%s", to_mail, subject, msg)
+    log.info("发送邮件: %s\n%s\n%s", to_mail, subject, textwrap.shorten(msg, 100))
     mail = EmailMultiAlternatives(subject, from_email=FROM_EMAIL, to=to_mail)
     # res = send_mail(
     #     subject,
@@ -69,5 +70,6 @@ def _send_mail(msg, to_mail, subject="Result of PON-Sol2", sleep_time=10):
     mail.content_subtype = "plain"
     res = mail.send()
     log.info("发送邮件结果: %s", res)
+    sleep_time = random.randint(max(0, sleep_time - 5), sleep_time + 5)
     log.info("休眠%s秒", sleep_time)
     time.sleep(sleep_time)

@@ -1,13 +1,15 @@
+import pandas as pd
 from django.db import models
 from collections import defaultdict
-
+A_LIST = ('A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y')
 
 # Create your models here.
 
 class Task(models.Model):
     INPUT_TYPE = (
         ("id", "ID"),
-        ("seq", "Sequence")
+        ("seq", "Sequence"),
+        ("protein", "Protein")
     )
     ip = models.GenericIPAddressField()
     mail = models.EmailField(null=True)
@@ -34,6 +36,51 @@ class Task(models.Model):
             else:
                 id_group[records.seq_id].append(records)
         return id_group, name_group
+
+    def get_protein_information(self):
+        id_group, name_group = self.get_record_group()
+        record_group = list(id_group.values()) + list(name_group.values())
+        protein_data = []
+
+        def aux(x):
+            return pd.Series(x["result"].values, index=x["end"])
+
+        for rs in record_group:
+            # 蛋白质信息
+            seq_id = rs[0].seq_id
+            seq_id_type = rs[0].get_seq_id_type_display()
+            seq = rs[0].seq
+            seq_name = rs[0].name
+            # 构建 df
+            columns = ["index", "st"] + list(A_LIST)
+            df_data = []
+            for record in rs:
+                aa = record.aa
+                st = aa[0]
+                indx = aa[1:-1]
+                end = aa[-1]
+                df_data.append({"st": st, "index": indx, "end": end, "result": record.solubility})
+            all_result = pd.DataFrame(df_data).groupby(["st", "index"]).apply(aux)
+            all_result = all_result.sort_index(axis="index", level=[1, 2]).unstack()
+            all_result = all_result.reset_index().reindex(columns, axis=1).fillna("-")
+            # 排序
+            all_result["index"] = all_result["index"].astype(int)
+            all_result = all_result.sort_values("index")
+            all_result = all_result.rename(columns={"st": "origin", "index": "#"})
+            protein_data.append(
+                {
+                    "seq_id": seq_id,
+                    "seq_id_type": seq_id_type,
+                    "seq": seq,
+                    "name": seq_name,
+                    "record_id": rs[0].id,
+                    "data": {
+                        "columns": all_result.columns,
+                        "data": all_result.iterrows(),  # 注意是迭代器
+                    }
+                }
+            )
+        return protein_data
 
 
 class Record(models.Model):
