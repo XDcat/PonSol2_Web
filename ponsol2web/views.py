@@ -4,6 +4,8 @@ import re
 import traceback
 from datetime import datetime
 import json
+import tarfile
+import pandas as pd
 
 from django.core.paginator import Paginator
 from django.http import HttpResponse, HttpResponseRedirect, FileResponse
@@ -276,7 +278,7 @@ def predict(task_id, name, seq, aa, kind="seq", ids=None):
             task.error_msg = msg
             task.finish_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             task.save()
-    elif len(seq) == 0 or sum(map(lambda x: x!=[], aa)) == 0:
+    elif len(seq) == 0 or sum(map(lambda x: x != [], aa)) == 0:
         # 没有序列 或者 aa 为空
         msg = "There is no valid input. Please check whether all variations can be matched to input FASTA sequence."
         task.status = "error"
@@ -552,3 +554,33 @@ def get_running_mail(request):
     else:
         l = "There is no running task."
     return HttpResponse(l)
+
+
+def download_db(request):
+    project_dir = os.path.dirname(os.path.join(os.path.dirname(__file__), "./../"))
+    file_list = []
+    # 数据库文件
+    file_list.append(
+        os.path.join(project_dir, "db.sqlite3")
+    )
+    # 日志文件
+    log_dir = os.path.join(project_dir, "log")
+    file_list += [os.path.join(log_dir, i) for i in os.listdir(log_dir)]
+
+    try:
+        # 打包文件
+        file_name = os.path.join(os.path.dirname(__file__), "./static/ponsol2web/file/db_backpu.tar.gz")
+        tar = tarfile.open(file_name, "w:gz")
+        for i in file_list:
+            tar.add(i, arcname=os.path.basename(i))
+        tar.close()
+
+        file = open(file_name, 'rb')
+        response = FileResponse(file, content_type="application/x-download")
+        return response
+    except Exception as e:
+       return HttpResponse(traceback.format_exc())
+
+
+def download_csv(request):
+    return None

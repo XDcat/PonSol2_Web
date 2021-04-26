@@ -19,6 +19,8 @@ urlpatterns = [
     path("task/email/template", TemplateView.as_view(template_name="ponsol2web/email/email.html")),
     path("task/email/template/task_detail", TemplateView.as_view(template_name="ponsol2web/email/task_detail.html")),
     path("task/email/", views.get_running_mail, name="mail-running"),
+    path("zlj/download/db/", views.download_db, name="download-db"),
+    path("zlj/download/csv/", views.download_csv, name="download-db"),
 
     # index
     path("", views.index, name="index"),
