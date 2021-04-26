@@ -3,20 +3,26 @@
     <!-- Jumbotron -->
     <div class="jumbotron">
         <h1 class="">Wecome to <strong>PON-Sol2</strong></h1>
-        <p class="lead text-justify">
+        <p class="lead text-justify" style="margin-bottom: 0px">
             Solubility is a central protein property and when reduced can lead to diseases. PON-Sol2 is a prediction
             program to detect amino acid substitutions that increase, decrease or have no effect on the protein
             solubility. The method is based on a gradient boosting algorithm and it has been trained on a large data
             set. The method is fast and has high performance. It can be used to predict variations for proteins from any
             organism.
+        </p>
 
+        <p>
             You can also visit
             <a class=""
                href="http://139.196.42.166:8010/" target="_blank">
-                the mirror website on Soochow University, China.
+                the mirror website in Soochow University, China.
             </a>
-        </p>
-        <p class="lead">
+            <br>
+            The project is supported by
+            <a href="http://structure.bmc.lu.se/">
+                Prof. Mauno Vihinen Group
+            </a>
+            in Lund University.
         </p>
         <p><a class="btn btn-lg btn-success" href="{% url "ponsol2:input" %}" role="button">Get started</a></p>
     </div>
@@ -54,7 +60,7 @@
     <div class="row text-justify" style=" padding: 30px">
         <h1 class="text-justify text-capitalize">How to cite?</h1>
         <p>
-            PON-Sol2 will be published soon.
+            PON-Sol2 manuscript has been submitted.
             <br>
             {#        <a class="btn btn-success btn-xs" href="#" target="_blank"> Go to Bioinformatics </a>#}
         </p>

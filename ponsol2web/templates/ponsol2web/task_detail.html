@@ -8,7 +8,6 @@
     <div class="page-header">
         <h1>Prediction Result</h1>
     </div>
-    {#    <h3>Task Detail</h3>#}
     <div class="panel panel-default">
         <!-- Default panel contents -->
         <div class="panel-heading">Task Information</div>
@@ -46,22 +45,12 @@
                     <div class="panel-heading">
                         Protein {{ forloop.counter }}:
                         {% if record_list.0.seq_id %}
-                            {#                            {{ record_list.0.seq_id }} ({{ record_list.0.get_seq_id_type_display }})#}
                             {{ record_list.0.get_seq_id_type_display }} is {{ record_list.0.seq_id }}
                         {% else %}
                             No ID provided
                         {% endif %}
                     </div>
                     <div class="panel-body">
-                        {#                        <p>Protein id:#}
-                        {#                            {% if record_list.0.seq_id %}#}
-                        {#                                {{ record_list.0.seq_id }} ({{ record_list.0.get_seq_id_type_display }})#}
-                        {#                                                                {{ record_list.0.get_seq_id_type_display }} is {{ record_list.0.seq_id }}#}
-                        {#                            {% else %}#}
-                        {#                                Only provide FASTA sequence#}
-                        {#                            {% endif %}#}
-                        {##}
-                        {#                        </p>#}
                         <p>
                             Protein name: {{ record_list.0.name | shorten_str }};
                             Protein sequence: {{ record_list.0.seq | shorten_str }};
@@ -117,7 +106,7 @@
             <p>
                 If you find that there is no result or some variation have been missed, it is usually due to an incorrect
                 input format.
-                Please check wheather variation can match corresponding FASTA sequence.
+                Please check whether all variations can be matched to input FASTA sequence.
             </p>
         </div>
     </div>
@@ -126,7 +115,6 @@
             function myrefresh() {
                 window.location.reload();
             }
-
             setTimeout("myrefresh()", 1000);
         </script>
     {% endif %}

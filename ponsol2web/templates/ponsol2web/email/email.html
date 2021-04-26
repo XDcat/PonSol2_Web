@@ -27,7 +27,11 @@
     {# 招呼 #}
     <p>
         Dear user, <br><br>
-        The attached is the result of your submit.<br><br>
+        {% if task.status == "error" %}
+            {{ task.error_msg }}
+            {% else %}
+            The attached is the result of your submit.<br>
+        {% endif %}
 
     {#            <p>#}
     {#                If you find that there is no result or some variation have been missed, it is usually due to an#}
@@ -38,12 +42,7 @@
     {# 结尾语 #}
         Thank you for using PON-Sol2. <br><br>
         Best regards, <br><br>
-
-        =============================================================================================== <br>
-        Yang Yang (1,2), Lianjie Zeng (1) and Mauno Vihinen (2) <br>
-        1. School of Computer Science and Technology, Soochow University, 215006, China, Town, State, Postcode, Country
-        <br>
-        2. Department of Experimental Medical Science, Lund University, BMC B13, SE-221 84 Lund, Sweden. <br>
+        PON-Sol2 Group <br><br>
         * If you have any problems, please contact Lianjie Zeng (1709404010@stu.suda.edu.cn). <br>
     </p>
 </div>

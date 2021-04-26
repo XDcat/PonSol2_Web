@@ -33,7 +33,6 @@
                         <p>
                             Protein name: {{ record_list.0.name | shorten_str }};
                             Protein sequence: {{ record_list.0.seq | shorten_str }};
-                            <a class="" href="{% url "ponsol2:protein_detail" record_list.0.id %}">more</a>
                         </p>
                     </div>
                     <table class="table">
@@ -85,7 +84,7 @@
             <p>
                 If you find that there is no result or some variation have been missed, it is usually due to an incorrect
                 input format.
-                Please check wheather variation can match corresponding FASTA sequence.
+                Please check whether all variations can be matched to input FASTA sequence.
             </p>
         </div>
     </div>

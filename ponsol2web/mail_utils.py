@@ -40,7 +40,7 @@ def send_result(task_id, ):
                                               "url": f" ({RESULT_URL_PRE}/task/{task_id})",
                                               "task": task,
                                           })
-        pdf = generatePDF(task)
+        pdf = generatePDF(task) if task.status != "error" else None
         log.debug("单独使用邮件线程池，发送邮件")
         global_mail_thread_pool.add_task(f"mail_{task_id}", _send_mail, message, to_mail,
                                          "Result of PON-Sol2 - Task{}".format(task.id), 30, pdf=pdf)
@@ -56,7 +56,8 @@ def _send_mail(msg, to_mail, subject="Result of PON-Sol2", sleep_time=10, pdf=No
     try:
         mail = EmailMultiAlternatives(subject, from_email=FROM_EMAIL, to=to_mail)
         mail.attach_alternative(msg, "text/html")
-        mail.attach(subject + ".pdf", pdf)
+        if pdf:
+            mail.attach(subject + ".pdf", pdf)
         mail.content_subtype = "plain"
         res = mail.send()
         log.info("发送邮件结果: %s", res)

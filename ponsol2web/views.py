@@ -269,64 +269,62 @@ def predict(task_id, name, seq, aa, kind="seq", ids=None):
             task.error_msg = msg
             task.finish_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             task.save()
-            raise RuntimeError(msg)
         else:
             msg = "The number of sequences doesn't correspond to the number of rows of amino acid substitution."
             task.status = "error"
             task.error_msg = msg
             task.finish_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             task.save()
-            raise RuntimeError(msg)
-    elif len(name) == 0:
-        msg = "There is no valid input."
+    elif len(seq) == 0 or sum(map(lambda x: x!=[], aa)) == 0:
+        # 没有序列 或者 aa 为空
+        msg = "There is no valid input. Please check whether all variations can be matched to input FASTA sequence."
         task.status = "error"
         task.error_msg = msg
         task.finish_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         task.save()
-        raise RuntimeError(msg)
-
-    N = len(seq)
-    try:
-        log.debug("Load classifier.")
-        classifier = PonsolClassifier.PonSol2()
-    except Exception as e:
-        msg = "Can't load classifier."
-        log.warning(msg)
-        log.info(traceback.format_exc())
-        task.status = "error"
-        task.error_msg = str(msg)
-        task.save()
-
-    log.debug("create records")
-    records = []
-    for i in range(N):
-        # initialize record
-        n = name[i]
-        s = seq[i]
-        identify = ids[i] if ids else None
-        for a in aa[i]:
-            record = Record(task_id=task_id, name=n, seq=s, aa=a, seq_id=identify, seq_id_type=kind)
-            records.append(record)
-    log.debug("bulk create")
-    # Record.objects.bulk_create(records)
-    log.debug("start predict")
-    for record in records:
-        # predict
-        s = record.seq
-        a = record.aa
-        log.debug("start %s", a)
+    else:
+        N = len(seq)
         try:
-            pred = classifier.predict(s, a)[0]
-            record.solubility = pred
-            record.status = "finished"
-            record.save()
+            log.debug("Load classifier.")
+            classifier = PonsolClassifier.PonSol2()
         except Exception as e:
-            record.status = "error"
-            record.error_msg = str(e)
-            record.save()
-    task.status = "finished"
-    task.finish_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    task.save()
+            msg = "Can't load classifier."
+            log.warning(msg)
+            log.info(traceback.format_exc())
+            task.status = "error"
+            task.error_msg = str(msg)
+            task.save()
+
+        log.debug("create records")
+        records = []
+        for i in range(N):
+            # initialize record
+            n = name[i]
+            s = seq[i]
+            identify = ids[i] if ids else None
+            for a in aa[i]:
+                record = Record(task_id=task_id, name=n, seq=s, aa=a, seq_id=identify, seq_id_type=kind)
+                records.append(record)
+        log.debug("bulk create")
+        # Record.objects.bulk_create(records)
+        log.debug("start predict")
+        for record in records:
+            # predict
+            s = record.seq
+            a = record.aa
+            log.debug("start %s", a)
+            try:
+                pred = classifier.predict(s, a)[0]
+                record.solubility = pred
+                record.status = "finished"
+                record.save()
+            except Exception as e:
+                record.status = "error"
+                record.error_msg = str(e)
+                record.save()
+        task.status = "finished"
+        task.finish_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        task.save()
     log.debug("task(id=%s) is finished!", task_id)
     try:
         mail_utils.send_result(task.id)
