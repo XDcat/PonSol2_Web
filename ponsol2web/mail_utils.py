@@ -60,15 +60,22 @@ def _send_mail(task, msg, to_mail, subject="Result of PON-Sol2", sleep_time=10, 
             mail.attach(subject + ".pdf", pdf)
         mail.content_subtype = "plain"
         res = mail.send()
-        task.email_res = str(res)
+        if task.email_res:
+            task.email_res += str(res)
+        else:
+            task.email_res = str(res)
         task.save()
         log.info("发送邮件结果: %s", res)
         sleep_time = random.randint(max(0, sleep_time - 5), sleep_time + 5)
         log.info("休眠%s秒", sleep_time)
         time.sleep(sleep_time)
     except Exception:
+        msg = traceback.format_exc()
         log.warning("发送邮件失败: %s", traceback.format_exc())
-        task.email_res = traceback.format_exc()
+        if task.email_res:
+            task.email_res += str(msg)
+        else:
+            task.email_res = str(msg)
         task.save()
 
 

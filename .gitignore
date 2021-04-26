@@ -9,7 +9,7 @@ out
 gen
 
 # log
-*.log
+log/*.log
 
 *__pycache__*
 
