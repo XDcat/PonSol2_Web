@@ -42,14 +42,14 @@ def send_result(task_id, ):
                                           })
         pdf = generatePDF(task) if task.status != "error" else None
         log.debug("单独使用邮件线程池，发送邮件")
-        global_mail_thread_pool.add_task(f"mail_{task_id}", _send_mail, message, to_mail,
+        global_mail_thread_pool.add_task(f"mail_{task_id}", _send_mail, task, message, to_mail,
                                          "Result of PON-Sol2 - Task{}".format(task.id), 30, pdf=pdf)
         # 发送给自己
-        global_mail_thread_pool.add_task(f"mail_{task_id}_au", _send_mail, message, AUTHOR_EMAIL,
+        global_mail_thread_pool.add_task(f"mail_{task_id}_au", _send_mail, task, message, AUTHOR_EMAIL,
                                          "Result of PON-Sol2 - Task{} -> {}".format(task.id, to_mail), 60, pdf=pdf)
 
 
-def _send_mail(msg, to_mail, subject="Result of PON-Sol2", sleep_time=10, pdf=None):
+def _send_mail(task, msg, to_mail, subject="Result of PON-Sol2", sleep_time=10, pdf=None):
     if not isinstance(to_mail, (list, tuple)):
         to_mail = [to_mail, ]
     log.info("发送邮件: %s\n%s\n%s", to_mail, subject, textwrap.shorten(msg, 100))
@@ -60,12 +60,16 @@ def _send_mail(msg, to_mail, subject="Result of PON-Sol2", sleep_time=10, pdf=No
             mail.attach(subject + ".pdf", pdf)
         mail.content_subtype = "plain"
         res = mail.send()
+        task.email_res = str(res)
+        task.save()
         log.info("发送邮件结果: %s", res)
         sleep_time = random.randint(max(0, sleep_time - 5), sleep_time + 5)
         log.info("休眠%s秒", sleep_time)
         time.sleep(sleep_time)
     except Exception:
         log.warning("发送邮件失败: %s", traceback.format_exc())
+        task.email_res = traceback.format_exc()
+        task.save()
 
 
 def generatePDF(task):

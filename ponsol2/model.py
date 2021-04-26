@@ -9,6 +9,7 @@ import joblib
 import pandas as pd
 from . import feature_extraction, config
 
+A_LIST = ('A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y')
 class PonSol2:
     def __init__(self):
         """

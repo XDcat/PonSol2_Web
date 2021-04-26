@@ -3,6 +3,7 @@ import os
 import re
 import traceback
 from datetime import datetime
+import json
 
 from django.core.paginator import Paginator
 from django.http import HttpResponse, HttpResponseRedirect, FileResponse
@@ -305,10 +306,10 @@ def predict(task_id, name, seq, aa, kind="seq", ids=None):
             for a in aa[i]:
                 record = Record(task_id=task_id, name=n, seq=s, aa=a, seq_id=identify, seq_id_type=kind)
                 records.append(record)
-        log.debug("bulk create")
+        # log.debug("bulk create")
         # Record.objects.bulk_create(records)
         log.debug("start predict")
-        for record in records:
+        for i, record in enumerate(records):
             # predict
             s = record.seq
             a = record.aa
@@ -317,11 +318,14 @@ def predict(task_id, name, seq, aa, kind="seq", ids=None):
                 pred = classifier.predict(s, a)[0]
                 record.solubility = pred
                 record.status = "finished"
-                record.save()
+                # record.save()
             except Exception as e:
                 record.status = "error"
                 record.error_msg = str(e)
-                record.save()
+                # record.save()
+            # if ((i+1) % 20 == 0) or (i == len(records) - 1):
+            #     Record.objects.bulk_create(records[i-20 - 1:i+1], 20)
+        Record.objects.bulk_create(records)
         task.status = "finished"
         task.finish_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         task.save()
@@ -411,7 +415,10 @@ def check_protein_input(seq, seq_id, seq_id_type):
     if seq:
         seq = seq.upper()
         seqs = re.findall(">[^>]*", seq)
-        if len(seqs) > 0:
+        if len(seqs) == 0:
+            res_name = "No name provided"
+            res_seq = "".join([i.strip() for i in seq])
+        elif len(seqs) > 0:
             rows = seqs[0].split("\n")
             res_name = rows[0].strip()
             res_seq = "".join([i.strip() for i in rows[1:]])
@@ -529,12 +536,13 @@ def protein_detail(request, record_id):
 
 
 def get_running_tasks(request):
-    l = global_thread_pool.check_future()
-    if l:
-        l = str(l)
-    else:
-        l = "There is no running task."
-    return HttpResponse(l)
+    data = {
+        "normal_task": global_thread_pool.check_future(),
+        "mail": global_mail_thread_pool.check_future(),
+        "protein_task": global_protein_all_thread_pool.check_future(),
+    }
+    data = json.dumps(data)
+    return HttpResponse(data)
 
 
 def get_running_mail(request):

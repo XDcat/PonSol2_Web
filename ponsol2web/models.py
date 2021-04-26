@@ -18,6 +18,7 @@ class Task(models.Model):
     status = models.TextField(null=True)  # 是否正确预测
     input_type = models.TextField(max_length=10, choices=INPUT_TYPE, null=True)
     error_msg = models.TextField(max_length=1000, null=True)  # 错误信息
+    email_res = models.TextField(max_length=1000, null=True)  # 错误信息
 
     def __str__(self):
         mail = self.mail if self.mail else "no email"
@@ -62,7 +63,9 @@ class Task(models.Model):
                 df_data.append({"st": st, "index": indx, "end": end, "result": record.solubility})
             all_result = pd.DataFrame(df_data).groupby(["st", "index"]).apply(aux)
             all_result = all_result.sort_index(axis="index", level=[1, 2]).unstack()
-            all_result = all_result.reset_index().reindex(columns, axis=1).fillna("-")
+            all_result = all_result.reset_index().reindex(columns, axis=1).fillna("N/A")
+            for col in all_result.columns:
+                all_result.loc[:, col][all_result.st == col] = "-"
             # 排序
             all_result["index"] = all_result["index"].astype(int)
             all_result = all_result.sort_values("index")

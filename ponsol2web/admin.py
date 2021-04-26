@@ -21,6 +21,6 @@ class TaskAdmin(admin.ModelAdmin):
     # 过滤器
     list_filter = ["ip", "finish_time"]
     # 展示的属性
-    list_display = ["status", "ip", "mail", "finish_time", "error_msg"]
+    list_display = ["id", "status", "ip", "mail", "start_time", "finish_time", "error_msg", "email_res"]
     # 相关的 record
     inlines = [RecordInline]
