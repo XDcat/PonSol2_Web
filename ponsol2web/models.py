@@ -13,7 +13,7 @@ class Task(models.Model):
     )
     ip = models.GenericIPAddressField()
     mail = models.EmailField(null=True)
-    start_time = models.DateTimeField(auto_now=True)
+    start_time = models.DateTimeField(auto_now_add=True)
     finish_time = models.DateTimeField(null=True)
     status = models.TextField(null=True)  # 是否正确预测
     input_type = models.TextField(max_length=10, choices=INPUT_TYPE, null=True)

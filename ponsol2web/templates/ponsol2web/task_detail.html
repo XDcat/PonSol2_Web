@@ -29,7 +29,7 @@
                             The result will be sent to
                             <ins>{{ task.mail }}</ins>.
                         {% endif %}
-                        Running time is from {{ task.start_time }} to {{ task.finish_time }}
+{#                        Running time is from {{ task.start_time }} to {{ task.finish_time }}#}
                     </div>
                 {% elif task.status == "error" %}
                     <div class="" role="alert"><strong>Error!</strong> {{ task.error_msg }}</div>            {% endif %}

@@ -472,7 +472,10 @@ def task_detail(request, task_id):
     data = {"task": task, }
     if task.input_type == "protein":
         # 如果是全序列预测
-        protein_information = task.get_protein_information()
+        try:
+            protein_information = task.get_protein_information()
+        except Exception as e:
+            return HttpResponse("Fatal error! Please contact the administrator.")
         data["protein_info"] = protein_information
         if is_email:
             # 邮件 pdf 的模板页面

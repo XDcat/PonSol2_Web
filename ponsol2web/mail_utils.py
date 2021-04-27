@@ -42,11 +42,18 @@ def send_result(task_id, ):
                                           })
         pdf = generatePDF(task) if task.status != "error" else None
         log.debug("单独使用邮件线程池，发送邮件")
+        # 发给用户
         global_mail_thread_pool.add_task(f"mail_{task_id}", _send_mail, task, message, to_mail,
-                                         "Result of PON-Sol2 - Task{}".format(task.id), 30, pdf=pdf)
-        # 发送给自己
+                                         "Result of PON-Sol2 - Task{}".format(task.id), 60, pdf=pdf)
+        # 发给管理员
+        # 没有 pdf
+
         global_mail_thread_pool.add_task(f"mail_{task_id}_au", _send_mail, task, message, AUTHOR_EMAIL,
-                                         "Result of PON-Sol2 - Task{} -> {}".format(task.id, to_mail), 60, pdf=pdf)
+                                         "Result of PON-Sol2 - Task{} -> {}".format(task.id, to_mail), 60, )
+        # 有 pdf
+        if pdf:
+            global_mail_thread_pool.add_task(f"mail_{task_id}_au", _send_mail, task, message, AUTHOR_EMAIL,
+                                             "Result of PON-Sol2 - Task{} -> {}".format(task.id, to_mail), 60, pdf=pdf)
 
 
 def _send_mail(task, msg, to_mail, subject="Result of PON-Sol2", sleep_time=10, pdf=None):

@@ -49,7 +49,7 @@
                     <div class="" role="alert"><strong>Finished!</strong> This task(id={{ task.id }}) is finished, and
                         the result is the
                         followed.
-                        Running time is from {{ task.start_time }} to {{ task.finish_time }}
+{#                        Running time is from {{ task.start_time }} to {{ task.finish_time }}#}
                     </div>
                 {% elif task.status == "error" %}
                     <div class="" role="alert"><strong>Error!</strong> {{ task.error_msg }}</div>            {% endif %}
