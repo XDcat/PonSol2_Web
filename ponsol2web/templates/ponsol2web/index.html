@@ -18,25 +18,34 @@
     <div class="row">
         <div class="col-lg-4 col-md-4">
             <h2>Input Format</h2>
+        <div class="col-lg-4 col-md-4">
+            <h2>Input formats</h2>
             <p>
-                There are two input ways that have different input formats. FASTA sequences and amino acid substitutions
-                are provided seperatly, or IDs and amino acid substitutions are put together.
+                There are two input formats. Sequences can be given either in FASTA format or indicated by their IDs.
             </p>
-            <p><a class="btn btn-primary" href="{% url "ponsol2:about" %}#input_example" role="button">View details »</a></p>
+            <p><a class="btn btn-primary" href="{% url "ponsol2:about" %}#input_example" role="button">View details
+                »</a></p>
         </div>
         <div class="col-lg-4 col-md-4">
             <h2>Dataset</h2>
             <p>Altogether 11201 amino acid substitutions in 77 proteins are collected. After filtering, 5666 variants
                 are used for training, and 662 variants are used for blind testing. The database is freely available.
                 <a href="{% url "ponsol2:download-dataset-ponsol2" %}"> <span class="glyphicon glyphicon-download-alt"></span></a>
+        <div class="col-lg-4 col-md-4">
+            <h2>Data sets</h2>
+            <p>
+                5666 variants were used for method training and 662 variants were used for blind test. The data sets are
+                freely available.
+                <a href="{% url "ponsol2:download-dataset-ponsol2" %}"> <span
+                        class="glyphicon glyphicon-download-alt"></span></a>
             </p>
             <p><a class="btn btn-primary" href="{% url "ponsol2:about" %}#dataset" role="button">View details »</a></p>
         </div>
         <div class="col-lg-4 col-md-4">
             <h2>Predict Result</h2>
             <p>
-                Predict result will be displayed in the Result page. The list of result is generated according to IP.
-                You can also provide your email, and result will be sent to your email if completed.
+                Result are displayed on the Results page. You can also provide your email, then the results are by
+                email.
             </p>
             <p><a class="btn btn-primary" href="{% url "ponsol2:task-list" %}" role="button">View
                 details »</a></p>
@@ -45,19 +54,25 @@
     <div class="row text-center" style="margin-top: 50px;">
         <h1 class="text-center text-capitalize">How to cite?</h1>
         <p>
-            PON-Sol2 will be published soon.
-        </p>
-        <p>
-            PON-Sol (2016), the old version based on Random Forests, has been published Bioinformatics.
+            PON-Sol2 manuscript has been submitted.
             <br>
-            Yang, Y. , Niroula, A. , Shen, B. , & Vihinen, M. . (2016). Pon-sol: prediction of effects of amino acid substitutions on protein solubility. Bioinformatics, btw066.
+            {#        <a class="btn btn-success btn-xs" href="#" target="_blank"> Go to Bioinformatics </a>#}
+        </p>
+        <p class="text-justify">
+            {#            PON-Sol (2016), the old version based on Random Forests, has been published Bioinformatics.#}
+            {#            <br>#}
+            The original PON-Sol was published in
+            Yang, Y. , Niroula, A. , Shen, B. , & Vihinen, M. . (2016). Pon-sol: prediction of effects of amino acid
+            substitutions on protein solubility. Bioinformatics, btw066.
 
-            <span><a class="btn btn-success btn-xs" href="https://academic.oup.com/bioinformatics/article/32/13/2032/1742792?login=true" target="_blank">
-                Go to Bioinformatics
-            </a></span>
-{#            Yang Yang, Abhishek Niroula, Bairong Shen, Mauno Vihinen, PON-Sol: prediction of effects of amino acid substitutions on protein solubility, Bioinformatics, Volume 32, Issue 13, 1 July 2016, Pages 2032–2034, https://doi.org/10.1093/bioinformatics/btw066#}
-{#            It was trained this far on the largest dataset of 406 single amino acid substitutions.#}
-{#            It grouped variants into three classes: solubility decreasing and increasing variants and those not affecting solubility.#}
+            <a class="btn btn-success btn-xs"
+               href="https://academic.oup.com/bioinformatics/article/32/13/2032/1742792?login=true" target="_blank">
+                {#            Go to Bioinformatics#}
+                Bioinformatics
+            </a>
+            {#            Yang Yang, Abhishek Niroula, Bairong Shen, Mauno Vihinen, PON-Sol: prediction of effects of amino acid substitutions on protein solubility, Bioinformatics, Volume 32, Issue 13, 1 July 2016, Pages 2032–2034, https://doi.org/10.1093/bioinformatics/btw066#}
+            {#            It was trained this far on the largest dataset of 406 single amino acid substitutions.#}
+            {#            It grouped variants into three classes: solubility decreasing and increasing variants and those not affecting solubility.#}
         </p>
         {#        <div class="col-lg-6">#}
         {#            <h2 class="text-center text-capitalize">How to cite?</h2>#}

@@ -1,0 +1,54 @@
+{% load static %}
+{% load my_filter %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Home {% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{% static "ponsol2web/button.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "ponsol2web/base_style.css" %}">
+    <!-- Bootstrap -->
+    <link rel="stylesheet" type="text/css" href="{% static "ponsol2web/css/bootstrap.min.css" %}">
+    <!-- Custom styles for this template -->
+    <link href="{% static "ponsol2web/css/justified-nav.css" %}" rel="stylesheet">
+</head>
+<body style="padding-top: 0">
+<div class="container">
+    {# 发送给管理者 #}
+    {% if to_mail %}
+        <p>
+            Notice: This message is send to {{ to_mail }} <br>
+            Message ->
+        </p>
+    {% endif %}
+    {# 招呼 #}
+    <p>
+        Dear user, <br><br>
+        {% if task.status == "error" %}
+            {{ task.error_msg }}
+            {% else %}
+            The attached is the result of your submit.<br>
+        {% endif %}
+
+    {#            <p>#}
+    {#                If you find that there is no result or some variation have been missed, it is usually due to an#}
+    {#                incorrect input format.<br>#}
+    {#                Please check wheather variation can match corresponding FASTA sequence.#}
+    {#                <br><br>#}
+    {#            </p>#}
+    {# 结尾语 #}
+        Thank you for using PON-Sol2. <br><br>
+        Best regards, <br><br>
+        PON-Sol2 Group <br><br>
+        * If you have any problems, please contact Lianjie Zeng (1709404010@stu.suda.edu.cn). <br>
+    </p>
+</div>
+</body>
+<!-- jQuery (Bootstrap 的 JavaScript 插件需要引入 jQuery) -->
+<script src="{% static "ponsol2web/js/jquery.min.js" %}"></script>
+<!-- 包括所有已编译的插件 -->
+<script src="{% static "ponsol2web/js/bootstrap.min.js" %}"></script>
+</html>

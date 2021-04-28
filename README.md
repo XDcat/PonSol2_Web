@@ -6,6 +6,12 @@
 conda env create -f .\environment.yml
 ```
 
+
+## 在 docker 中部署(推荐)
+1.  获取`docker pull xdcat/centos:ponsol2`
+2.  运行`docker run -tid -p8091:3306 -p8090:80 --name ponsol2 --privileged=true xdcat/centos:ponsol2 /usr/sbin/init`
+3. 网站将会在8090端口运行
+
 ## 在 linux 上部署(uwsgi)
 
 1. 使用 conda 创建新的环境，如上所示
@@ -41,9 +47,8 @@ conda env create -f .\environment.yml
         * 修改 uwsgi.ini 的 `chdir` 和 `static-map`(迁移后路径)
         
 * 运行
-       ```bash
-    nohup /root/anaconda3/bin/uwsgi --ini /root/box/Ponsol_Web/uwsgi.ini > run_ponsol2_uwsgi.log 2>&1 &
-    
-       ```
+   ```bash
+   nohup /root/anaconda3/bin/uwsgi --ini /root/box/Ponsol_Web/uwsgi.ini > run_ponsol2_uwsgi.log 2>&1 &
+   ```
        
 

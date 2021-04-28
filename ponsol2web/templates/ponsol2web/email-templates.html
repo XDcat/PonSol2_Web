@@ -1,0 +1,29 @@
+{% if to_mail %}
+    <p>
+        Notice: This message is send to {{ to_mail }} <br>
+        Message ->
+    </p>
+{% endif %}
+<p>
+<p>
+    Dear friend, <br><br>
+    Thank you for using PON-Sol2. <br><br>
+    The result of your submit is followed: <br><br>
+</p>
+{% if res %}
+    {% for foo in res %}
+        <p>{{ foo }}</p>
+    {% endfor %}
+{% endif %}
+<br>
+<p>
+    You can also go to the Result page of PON-Sol2 website to see more detailed information{{ url }}. <br><br>
+
+    Best regards, <br><br>
+
+    =============================================================================================== <br>
+    Yang Yang (1,2), Lianjie Zeng (1) and Mauno Vihinen (2) <br>
+    1. School of Computer Science and Technology, Soochow University, 215006, China, Town, State, Postcode, Country <br>
+    2. Department of Experimental Medical Science, Lund University, BMC B13, SE-221 84 Lund, Sweden. <br>
+    * If you have any problems, please contact Lianjie Zeng (zenglianjie@foxmail.com). <br>
+</p>

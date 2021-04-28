@@ -10,3 +10,7 @@ gen
 
 # log
 *.log
+
+*__pycache__*
+
+db.sqlite3

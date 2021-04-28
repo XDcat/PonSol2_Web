@@ -1,0 +1,75 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Home {% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{% static "ponsol2web/button.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "ponsol2web/base_style.css" %}">
+    <!-- Bootstrap -->
+    <link rel="stylesheet" type="text/css" href="{% static "ponsol2web/css/bootstrap.min.css" %}">
+    <!-- Custom styles for this template -->
+    <link href="{% static "ponsol2web/css/justified-nav.css" %}" rel="stylesheet">
+
+</head>
+<body style="padding-top: 0">
+<div class="container">
+{#    <div class="masthead" style="margin-bottom: 40px;">#}
+{#        <div class="">#}
+{#            <a href="{% url "ponsol2:index" %}" class="">#}
+{#                <img alt="PON-Sol2" style="width:130px; padding: 5px;"#}
+{#                     src="{% static "ponsol2web/img/ponsol2_logo.png" %}">#}
+{#            </a>#}
+{#        </div>#}
+{#    </div>#}
+    <div class="page-header text-center">
+        <h1>
+            <img style="height: 80px;" src="{% static "ponsol2web/img/ponsol2_logo.png"%}">
+            {#            PON-Sol2#}
+            Prediction Result</h1>
+    </div>
+    {#    <h3>Task Detail</h3>#}
+    <div class="panel panel-default">
+        <!-- Default panel contents -->
+        <div class="panel-heading">Task Information</div>
+        <div class="panel-body">
+            <div style="">
+                {% if task.status == "running" %}
+                    <div class="" role="alert">
+                        <strong>Running!</strong> This task(id={{ task.id }}) is running now, please wait a moment.
+                        {% if task.mail %}
+                            The result will be sent to
+                            <ins>{{ task.mail }}</ins>.
+                        {% endif %}
+                    </div>
+                {% elif task.status == "finished" %}
+                    <div class="" role="alert"><strong>Finished!</strong> This task(id={{ task.id }}) is finished, and
+                        the result is the
+                        followed.
+{#                        Running time is from {{ task.start_time }} to {{ task.finish_time }}#}
+                    </div>
+                {% elif task.status == "error" %}
+                    <div class="" role="alert"><strong>Error!</strong> {{ task.error_msg }}</div>            {% endif %}
+            </div>
+        </div>
+    </div>
+    {% block content %}
+
+    {% endblock %}
+    <!-- Site footer -->
+<div>
+    <footer class="footer text-right">
+        <img style="height: 50px; margin: 0 20px;" src="{% static "ponsol2web/img/苏大logo.png" %}">
+        <img style="height: 50px; margin: 0 20px;" src="{% static "ponsol2web/img/Lund_university_L_CMYK.png" %}">
+    </footer>
+</div>
+</div> <!-- /container -->
+</body>
+<!-- jQuery (Bootstrap 的 JavaScript 插件需要引入 jQuery) -->
+<script src="{% static "ponsol2web/js/jquery.min.js" %}"></script>
+<!-- 包括所有已编译的插件 -->
+<script src="{% static "ponsol2web/js/bootstrap.min.js" %}"></script>
+</html>

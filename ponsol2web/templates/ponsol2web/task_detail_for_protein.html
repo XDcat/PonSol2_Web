@@ -8,6 +8,7 @@
     <div class="page-header">
         <h1>Prediction Result</h1>
     </div>
+    {#    <h3>Task Detail</h3>#}
     <div class="panel panel-default">
         <!-- Default panel contents -->
         <div class="panel-heading">Task Information</div>
@@ -37,58 +38,38 @@
         </div>
     </div>
     <div>
-
-        {# 分组数据 #}
-        {% if record_group %}
-            {% for record_list in record_group %}
+        {#    每一个蛋白质的数据#}
+        {% if protein_info %}
+            {% for pi in protein_info %}
                 <div class="panel panel-primary">
                     <div class="panel-heading">
                         Protein {{ forloop.counter }}:
-                        {% if record_list.0.seq_id %}
-                            {{ record_list.0.get_seq_id_type_display }} is {{ record_list.0.seq_id }}
+                        {% if  pi.seq_id %}
+                            {{pi.seq_id_type}} is {{ pi.seq_id }}
                         {% else %}
                             No ID provided
                         {% endif %}
                     </div>
                     <div class="panel-body">
                         <p>
-                            Protein name: {{ record_list.0.name | shorten_str }};
-                            Protein sequence: {{ record_list.0.seq | shorten_str }};
-                            <a class="" href="{% url "ponsol2:protein_detail" record_list.0.id %}">more</a>
+                            Protein name: {{ pi.name | shorten_str }};
+                            Protein sequence: {{ pi.seq | shorten_str }};
+                            <a class="" href="{% url "ponsol2:protein_detail" pi.record_id %}">more</a>
                         </p>
                     </div>
                     <table class="table">
-                        <tr class="row">
-                            <th class="col-md-1">#</th>
-                            <th class="col-md-3 ">Variation</th>
-                            <th class="col-md-3 ">Predict result</th>
-                            <th class="col-md-5 ">Remark</th>
+                        <tr class="">
+                            {% for column in pi.data.columns %}
+                                <th>{{ column }}</th>
+                            {% endfor %}
                         </tr>
-                        {% for record in record_list %}
-                            <tr class="row">
-
-                                <td> {{ forloop.counter }}</td>
-                                <td>
-                                    <a href="{% url "ponsol2:record-detail" record.id %}"> {{ record.aa }}</a>
-                                </td>
-                                <td>
-                                    {% if record.solubility %}
-                                        {{ record.get_solubility_display }}
-                                        {#                                        {% elif record.status %}#}
-                                    {% else %}
-                                        <span class="text-danger">
-                                                {{ record.status }}
-                                        </span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if record.error_msg %}
-                                        {{ record.error_msg }}
-                                    {% else %}
-                                        -
-                                    {% endif %}
-                                    {#                                    <a href="{% url "ponsol2:record-detail" record.id %}"> see details</a>#}
-                                </td>
+                        {% for row in pi.data.data %}
+                            <tr class="">
+                                {% for ele in row.1 %}
+                                    <td>
+                                        {{ ele }}
+                                    </td>
+                                {% endfor %}
                             </tr>
                         {% endfor %}
                     </table>
@@ -104,7 +85,8 @@
         <div>
             <br>
             <p>
-                If you find that there is no result or some variation have been missed, it is usually due to an incorrect
+                If you find that there is no result or some variation have been missed, it is usually due to an
+                incorrect
                 input format.
                 Please check whether all variations can be matched to input FASTA sequence.
             </p>
@@ -115,7 +97,7 @@
             function myrefresh() {
                 window.location.reload();
             }
-            setTimeout("myrefresh()", 1000);
+            setTimeout("myrefresh()", 2000);
         </script>
     {% endif %}
 {% endblock %}

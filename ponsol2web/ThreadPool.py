@@ -39,4 +39,7 @@ class ThreadPool:
 
 
 # global thread pool
-global_thred_pool = ThreadPool()
+global_thread_pool = ThreadPool(10)  # 普通预测任务
+global_protein_all_thread_pool = ThreadPool(2)  # 全序列预测任务
+
+global_mail_thread_pool = ThreadPool(max_thread=1)  # 发送邮件

@@ -1,0 +1,71 @@
+{% extends "ponsol2web/email/base_generic.html" %}
+{% load static %}
+{% load my_filter %}
+{% block title %} Detail {% endblock %}
+
+{% block content_title %} Result Detail{% endblock %}
+{% block content %}
+
+    <div>
+        {#    每一个蛋白质的数据#}
+        {% if protein_info %}
+            {% for pi in protein_info %}
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        Protein {{ forloop.counter }}:
+                        {% if  pi.seq_id %}
+                            {{pi.seq_id_type}} is {{ pi.seq_id }}
+                        {% else %}
+                            No ID provided
+                        {% endif %}
+                    </div>
+                    <div class="panel-body">
+                        <p>
+                            Protein name: {{ pi.name | shorten_str }};<br>
+                            Protein sequence: {{ pi.seq | shorten_str }};
+                        </p>
+                    </div>
+                    <table class="table">
+                        <tr class="">
+                            {% for column in pi.data.columns %}
+                                <th>{{ column }}</th>
+                            {% endfor %}
+                        </tr>
+                        {% for row in pi.data.data %}
+                            <tr class="">
+                                {% for ele in row.1 %}
+                                    <td>
+                                        {{ ele }}
+                                    </td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+    <div>
+        <ul class="nav nav-list">
+            <li class="divider"></li>
+        </ul>
+        <h5 class="page-header" style="margin: 10px"></h5>
+        <div>
+            <br>
+            <p>
+                If you find that there is no result or some variation have been missed, it is usually due to an
+                incorrect
+                input format.
+                Please check whether all variations can be matched to input FASTA sequence.
+            </p>
+        </div>
+    </div>
+    {% if task.status == "running" %}
+        <script type="text/javascript">
+            function myrefresh() {
+                window.location.reload();
+            }
+            setTimeout("myrefresh()", 2000);
+        </script>
+    {% endif %}
+{% endblock %}

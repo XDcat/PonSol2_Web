@@ -79,16 +79,19 @@ if DEBUG:
 else:
     DATABASE_CONFIG_PATH = os.path.join(BASE_DIR, "db.config")
 DATABASES = {
-    "default": {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'TEST': {
+            'NAME': 'mytestdatabase',
+        },
+    },
+    "mysql": {
         'ENGINE': 'django.db.backends.mysql',
         "OPTIONS": {
             'read_default_file': DATABASE_CONFIG_PATH
         },
     },
-    'other': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
 }
 
 # Password validation
@@ -153,7 +156,7 @@ LOGGING = {
             "class": "logging.handlers.RotatingFileHandler",
             "formatter": "default",
             "level": "DEBUG",
-            "filename": os.path.join(BASE_DIR, "ponsol2_web_debug.log"),  # 必选, 文件名称
+            "filename": os.path.join(BASE_DIR, "log", "ponsol2_web_debug.log"),  # 必选, 文件名称
             "encoding": "utf8",
             "maxBytes": 10485760,  # 日志文件最大个数 1024B * 1024 * 10 = 10MB
             "backupCount": 10,  # 日志文件最大个数
@@ -162,7 +165,7 @@ LOGGING = {
             "class": "logging.handlers.RotatingFileHandler",
             "formatter": "default",
             "level": "INFO",
-            "filename": os.path.join(BASE_DIR, "ponsol2_web_info.log"),  # 必选, 文件名称
+            "filename": os.path.join(BASE_DIR, "log", "ponsol2_web_info.log"),  # 必选, 文件名称
             "encoding": "utf8",
             "maxBytes": 10485760,  # 日志文件最大个数 1024B * 1024 * 10 = 10MB
             "backupCount": 10,  # 日志文件最大个数
@@ -178,10 +181,10 @@ LOGGING = {
 }
 
 # 邮箱设置
-EMAIL_HOST = "smtp.111.com"
+EMAIL_HOST = "imap.111.com"
 EMAIL_PORT = "465"
-EMAIL_HOST_USER = "zenglianjie@111.com"
-EMAIL_HOST_PASSWORD = "SKJDzcNpEhN7g3Fq"
+EMAIL_HOST_USER = "PONSol2.Report@111.com"
+EMAIL_HOST_PASSWORD = "iFktbDE2pzdaZDaC"
 EMAIL_USE_SSL = True
 EMAIL_TIMEOUT = 5
 DEFAULT_FROM_EMAIL = "zenglianjie@111.com"
