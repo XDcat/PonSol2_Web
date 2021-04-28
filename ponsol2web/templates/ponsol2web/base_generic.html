@@ -43,7 +43,8 @@
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav">
                     <li><a href="{% url "ponsol2:index" %}">Home</a></li>
-                    <li><a href="{% url "ponsol2:input" %}">Predict</a></li>
+                    <li><a href="{% url "ponsol2:input" %}">Variation Predict</a></li>
+                    <li><a href="{% url "ponsol2:protein-predict" %}">Protein Predict</a></li>
                     <li><a href="{% url "ponsol2:task-list" %}">Result</a></li>
 {#                    <li><a href="{% url "ponsol2:disclaimer" %}">Disclaimer</a></li>#}
                     <li><a href="{% url "ponsol2:about" %}">About</a></li>
@@ -55,6 +56,7 @@
                                role="button"
                                aria-haspopup="true" aria-expanded="false">{{ user.username }}<span class="caret"></span></a>
                             <ul class="dropdown-menu">
+                                <li><a href="{% url "ponsol2:dashboard" %}">Dashboard</a></li>
                                 <li><a href="{% url "ponsol2:account-setting" %}">Account settings</a></li>
                                 <li role="separator" class="divider"></li>
                                 <li><a href="{% url "ponsol2:logout" %}">Logout</a></li>

@@ -181,10 +181,10 @@ LOGGING = {
 }
 
 # 邮箱设置
-EMAIL_HOST = "imap.111.com"
+EMAIL_HOST = "smtp.111.com"
 EMAIL_PORT = "465"
-EMAIL_HOST_USER = "PONSol2.Report@111.com"
-EMAIL_HOST_PASSWORD = "iFktbDE2pzdaZDaC"
+EMAIL_HOST_USER = "zenglianjie@111.com"
+EMAIL_HOST_PASSWORD = "SKJDzcNpEhN7g3Fq"
 EMAIL_USE_SSL = True
 EMAIL_TIMEOUT = 5
 DEFAULT_FROM_EMAIL = "zenglianjie@111.com"

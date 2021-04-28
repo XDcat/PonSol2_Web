@@ -2,13 +2,14 @@ import logging
 import os
 import re
 import traceback
-from datetime import datetime
+from datetime import datetime, timedelta
 import json
 import tarfile
 import pandas as pd
+import numpy as np
 
 from django.core.paginator import Paginator
-from django.http import HttpResponse, HttpResponseRedirect, FileResponse
+from django.http import HttpResponse, HttpResponseRedirect, FileResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 
@@ -104,8 +105,8 @@ def predict_seq(request):
             len(names), names, len(seqs), seqs, len(aas), aas
         )
         if len(seqs) == len(aas):
-            log.debug("start predicting using thread pool: %s", global_thred_pool)
-            global_thred_pool.add_task(task.id, predict, task.id, names, seqs, aas)
+            log.debug("start predicting using thread pool: %s", global_thread_pool)
+            global_thread_pool.add_task(task.id, predict, task.id, names, seqs, aas)
         else:
             task.status = "error"
             task.finish_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -318,6 +319,7 @@ def predict(task_id, name, seq, aa, kind="seq", ids=None):
             for a in aa[i]:
                 record = Record(task_id=task_id, name=n, seq=s, aa=a, seq_id=identify, seq_id_type=kind)
                 records.append(record)
+                # record.save()
         # log.debug("bulk create")
         # Record.objects.bulk_create(records)
         log.debug("start predict")
@@ -444,8 +446,12 @@ def check_protein_input(seq, seq_id, seq_id_type):
 
 def task_list(request):
     """return the list of task by ip"""
-    ip = get_ip(request)
-    tasks = Task.objects.filter(ip=ip).order_by("-start_time")
+    if request.user.is_authenticated:
+        user = request.user
+        tasks = user.task_set.all().order_by("-start_time")
+    else:
+        ip = get_ip(request)
+        tasks = Task.objects.filter(ip=ip).order_by("-start_time")
     # pager
     paginator = Paginator(tasks, 15)
     num_pages = paginator.num_pages
@@ -592,11 +598,12 @@ def download_db(request):
         response = FileResponse(file, content_type="application/x-download")
         return response
     except Exception as e:
-       return HttpResponse(traceback.format_exc())
+        return HttpResponse(traceback.format_exc())
 
 
 def download_csv(request):
     return None
+
 
 # 账户相关
 def register(request):
@@ -650,3 +657,88 @@ def personal_information(request):
     )
 
     return render(request, "registration/account_setting.html", {"form": form, "message": message})
+
+
+def dashboard(request):
+    return render(request, "ponsol2web/dashboard.html", {})
+
+
+def count_predict(request):
+    res = {
+        "type": None,
+        "data": None
+    }
+    if request.user.is_authenticated:
+        res["type"] = "user"
+        user = request.user
+        tasks = user.task_set.all()
+    else:
+        res["type"] = "ip"
+        ip = get_ip(request)
+        tasks = Task.objects.filter(ip=ip)
+
+    task_times = [t.start_time.strftime("%Y-%m-%d") for t in tasks]
+    res["data"] = pd.value_counts(task_times).to_dict()
+
+    return JsonResponse(res)
+
+
+def count_predict(request):
+    """统计预测的数目"""
+    res = {}
+    if request.user.is_authenticated:
+        res["type"] = "user"
+        user = request.user
+        tasks = user.task_set.all()
+    else:
+        res["type"] = "ip"
+        ip = get_ip(request)
+        tasks = Task.objects.filter(ip=ip)
+
+    # task_times = [t.start_time.strftime("%Y-%m-%d") for t in tasks if
+    #               datetime.now() - t.start_time < timedelta(days=100)]
+    task_times = [t.start_time.strftime("%Y-%m-%d") for t in tasks]
+    res["time_count"] = pd.value_counts(task_times).to_dict()
+    res["all_count"] = len(tasks)
+    # 统计超过了多少的用户
+    all_task = [(t.ip, t.user_id) for t in Task.objects.all()]
+    all_task = pd.DataFrame(all_task, columns=["ip", "user"])
+    all_task_user = all_task[~ all_task.user.isnull()]
+    all_task_ip = all_task[all_task.user.isnull()]
+    users_count = all_task_user.user.value_counts().to_list() + all_task_ip.ip.value_counts().to_list()
+    users_count = sorted(users_count)
+    bt = 0
+    for i in users_count:
+        if i >= res["all_count"]:
+            break
+        bt += 1
+    log.debug(f"bt={bt}, users_count={users_count}")
+    res["rate_count"] = "{:.2f}%".format(bt / len(users_count) * 100)
+    return JsonResponse(res)
+
+
+def distribution_predict(request):
+    """统计预测的数目"""
+    res = {}
+    if request.user.is_authenticated:
+        res["type"] = "user"
+        user = request.user
+        tasks = user.task_set.all()
+    else:
+        res["type"] = "ip"
+        ip = get_ip(request)
+        tasks = Task.objects.filter(ip=ip)
+
+    records = []
+    for t in tasks:
+        records += t.record_set.all()
+    records_res = [[r.task.start_time.strftime("%Y-%m-%d"), r.solubility, ] for r in records]
+    df_records_res = pd.DataFrame(records_res, columns=["time", "solubility"])
+    res["distribution"] = df_records_res.solubility.value_counts().to_dict()
+    log.debug("groupby time %s", df_records_res.groupby("time"))
+    res["time_count"] = {
+        i: df_records_res.groupby("time")["solubility"].apply(lambda x: sum(x == str(i))).to_dict() for i in [-1, 0, 1]
+    }
+    log.debug(f"res = {res}")
+
+    return JsonResponse(res)

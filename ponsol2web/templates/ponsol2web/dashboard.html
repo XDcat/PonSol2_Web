@@ -1,0 +1,28 @@
+{% extends "ponsol2web/base_generic.html" %}
+{% load static %}
+{% block content %}
+    <div id="line-chart"></div>
+    <script type="text/javascript" src="{% static "ponsol2web/js/g2plot.min.js" %}"></script>
+{#        <script type="text/javascript" src="https://unpkg.com/@antv/g2plot@latest/dist/g2plot.min.js"></script>#}
+    <script>
+        const {Line} = G2Plot;
+        const data = [
+            {year: '1991', value: 3},
+            {year: '1992', value: 4},
+            {year: '1993', value: 3.5},
+            {year: '1994', value: 5},
+            {year: '1995', value: 4.9},
+            {year: '1996', value: 6},
+            {year: '1997', value: 7},
+            {year: '1998', value: 9},
+            {year: '1999', value: 13},
+        ];
+        const line = new Line("line-chart", {
+            data,
+            xField: "year",
+            yField: "value",
+        })
+        line.render();
+    </script>
+{% endblock %}
+

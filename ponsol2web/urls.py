@@ -56,12 +56,16 @@ urlpatterns = [
          name="download-example-input-fasta-id"),
 
     # account
-    path("accounts/", include("django.contrib.auth.urls")),
+    # path("accounts/", include("django.contrib.auth.urls")),
     path("download/ponsol_dataset", views.download_dataset_ponsol, name="download-dataset-ponsol"),
 
     # account
     # path("accounts/setting/", TemplateView.as_view(template_name="registration/setting.html"), name='account-setting'),
     path("accounts/setting/", views.personal_information, name='account-setting'),
+    path("accounts/dashboard/", views.dashboard, name="dashboard"),
+    # dashboard 的 api
+    path("accounts/dashboard/api/count_predict", views.count_predict, name="api-count-predict"),
+    path("accounts/dashboard/api/distribution_predict", views.distribution_predict, name="api-distribution-predict"),
 
     # 注册 登录 退出登录
     path("accounts/register/", views.register, name='register'),
