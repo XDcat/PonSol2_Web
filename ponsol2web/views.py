@@ -12,6 +12,7 @@ from django.core.paginator import Paginator
 from django.http import HttpResponse, HttpResponseRedirect, FileResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
+from django.forms.models import model_to_dict
 
 from ponsol2 import get_seq
 from ponsol2 import model as PonsolClassifier
@@ -663,28 +664,8 @@ def dashboard(request):
     return render(request, "ponsol2web/dashboard.html", {})
 
 
-def count_predict(request):
-    res = {
-        "type": None,
-        "data": None
-    }
-    if request.user.is_authenticated:
-        res["type"] = "user"
-        user = request.user
-        tasks = user.task_set.all()
-    else:
-        res["type"] = "ip"
-        ip = get_ip(request)
-        tasks = Task.objects.filter(ip=ip)
-
-    task_times = [t.start_time.strftime("%Y-%m-%d") for t in tasks]
-    res["data"] = pd.value_counts(task_times).to_dict()
-
-    return JsonResponse(res)
-
-
-def count_predict(request):
-    """统计预测的数目"""
+def api_task_info(request):
+    """统计task的数据"""
     res = {}
     if request.user.is_authenticated:
         res["type"] = "user"
@@ -695,10 +676,35 @@ def count_predict(request):
         ip = get_ip(request)
         tasks = Task.objects.filter(ip=ip)
 
-    # task_times = [t.start_time.strftime("%Y-%m-%d") for t in tasks if
-    #               datetime.now() - t.start_time < timedelta(days=100)]
+    # 输入类型的分布
+    types = [t.get_input_type_display() for t in tasks]
+    types = pd.value_counts(types)
+    types = types.reindex([i[1] for i in Task.INPUT_TYPE], fill_value=0)
+    res["input_type_distribution"] = types.to_dict()
+    # 预测结果的分布
+
+    status = [t.status for t in tasks]
+    status = pd.value_counts(status)
+    status = status.reindex(["running", "finished", "error"], fill_value=0)
+    res["status_distribution"] = status.to_dict()
+
+    # 按照天数统计预测次数
     task_times = [t.start_time.strftime("%Y-%m-%d") for t in tasks]
-    res["time_count"] = pd.value_counts(task_times).to_dict()
+    task_times = pd.value_counts(task_times)
+    if task_times.shape[0] < 10:
+        t_index = list(task_times.index)
+        shape = task_times.shape[0]
+        start_time = task_times.index[0]
+        start_time = datetime.strptime(start_time, "%Y-%m-%d", )
+        for i in range(10 - shape):
+            t_index.append((start_time - timedelta(days=i + 1)).strftime("%Y-%m-%d"))
+        t_index = sorted(t_index)
+        task_times = task_times.reindex(t_index, fill_value=0)
+
+    res["time_count"] = []
+    for k, v in task_times.items():
+        res["time_count"].append({"time": k, "count": v})
+    # 总的预测次数
     res["all_count"] = len(tasks)
     # 统计超过了多少的用户
     all_task = [(t.ip, t.user_id) for t in Task.objects.all()]
@@ -717,8 +723,8 @@ def count_predict(request):
     return JsonResponse(res)
 
 
-def distribution_predict(request):
-    """统计预测的数目"""
+def api_record_info(request):
+    """统计预测的分布情况"""
     res = {}
     if request.user.is_authenticated:
         res["type"] = "user"
@@ -728,17 +734,65 @@ def distribution_predict(request):
         res["type"] = "ip"
         ip = get_ip(request)
         tasks = Task.objects.filter(ip=ip)
+    # 根据时间统计数据
+    # 将相同日期的 record 放在一起，并统计数目
+    records_group_time = {}
+    for i in tasks:
+        t = i.start_time.strftime("%Y-%m-%d")
+        records_group_time[t] = records_group_time.get(t, []) + list(i.record_set.all())
+    count_by_time = {k: len(v) for k, v in records_group_time.items()}
+    if len(count_by_time) < 10:
+        shape = len(count_by_time)
+        start_time = sorted(count_by_time.keys())[0]
+        start_time = datetime.strptime(start_time, "%Y-%m-%d")
+        for i in range(10 - shape):
+            count_by_time[(start_time - timedelta(days=i + 1)).strftime("%Y-%m-%d")] = 0
+    count_by_time = [{"time": k, "count": v} for k, v in count_by_time.items()]
+    count_by_time = sorted(count_by_time, key=lambda x: x["time"])
+    res["count_by_time"] = count_by_time
+    # 统计不同时间的 result 的分布
+    count_result_by_time = {}
+    for t, records in records_group_time.items():
+        count = {"-1": 0, "0": 0, "1": 0}
+        for record in records:
+            s = record.solubility
+            if s in count:
+                count[s] += 1
+        count_result_by_time[t] = count
+    if len(count_result_by_time) < 10:
+        shape = len(count_result_by_time)
+        start_time = sorted(count_result_by_time.keys())[0]
+        start_time = datetime.strptime(start_time, "%Y-%m-%d")
+        for i in range(10 - shape):
+            count_result_by_time[(start_time - timedelta(days=i + 1)).strftime("%Y-%m-%d")] = {"-1": 0, "0": 0, "1": 0}
+    res["count_res_by_time"] = count_result_by_time
 
+    # 统计全局数据
+    # 结果的分布
     records = []
     for t in tasks:
         records += t.record_set.all()
-    records_res = [[r.task.start_time.strftime("%Y-%m-%d"), r.solubility, ] for r in records]
-    df_records_res = pd.DataFrame(records_res, columns=["time", "solubility"])
-    res["distribution"] = df_records_res.solubility.value_counts().to_dict()
-    log.debug("groupby time %s", df_records_res.groupby("time"))
-    res["time_count"] = {
-        i: df_records_res.groupby("time")["solubility"].apply(lambda x: sum(x == str(i))).to_dict() for i in [-1, 0, 1]
-    }
-    log.debug(f"res = {res}")
+    records = [model_to_dict(r) for r in records]
+    records = pd.DataFrame(records)
+    solubility_distribution = records["solubility"].value_counts().reindex(["-1", "0", "1"], fill_value=0)
+    res["solubility_distribution"] = solubility_distribution.to_dict()
+
+    valid_aa = records["aa"][records["solubility"].isin(["-1", "0", "1"])]
+    valid_aa = pd.DataFrame(valid_aa)
+    valid_aa["start"] = valid_aa["aa"].str[0]
+    valid_aa["end"] = valid_aa["aa"].str[-1]
+    valid_aa["index"] = valid_aa["aa"].str[1: -1]
+    valid_aa_count_a = pd.concat(
+        [
+            valid_aa["start"].value_counts(),
+            valid_aa["end"].value_counts()
+        ], axis=1
+    ).reindex(index=A_LIST, ).fillna(0)
+
+    # res["aa"] = valid_aa.to_dict()
+    res["count_a"] = valid_aa_count_a.to_dict()
+    res["max_aa"] = valid_aa["aa"].value_counts().sort_values(ascending=False).to_dict()
+
+    # res["detail"] = records.to_dict()
 
     return JsonResponse(res)
