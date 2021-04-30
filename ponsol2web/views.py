@@ -680,13 +680,21 @@ def api_task_info(request):
     types = [t.get_input_type_display() for t in tasks]
     types = pd.value_counts(types)
     types = types.reindex([i[1] for i in Task.INPUT_TYPE], fill_value=0)
-    res["input_type_distribution"] = types.to_dict()
-    # 预测结果的分布
+    res["input_type_distribution"] = [{"name": k, "value": v} for k, v in types.to_dict().items()]
+    # res["input_type_distribution"] = {
+    #     "key": types.index.to_list(),
+    #     "value": types.to_list(),
+    # }
 
+    # 预测结果的分布
     status = [t.status for t in tasks]
     status = pd.value_counts(status)
     status = status.reindex(["running", "finished", "error"], fill_value=0)
-    res["status_distribution"] = status.to_dict()
+    res["status_distribution"] = [{"name": k, "value": v} for k, v in status.to_dict().items()]
+    # res["status_distribution"] = {
+    #     "key": status.index.to_list(),
+    #     "value": status.to_list(),
+    # }
 
     # 按照天数统计预测次数
     task_times = [t.start_time.strftime("%Y-%m-%d") for t in tasks]
@@ -701,9 +709,13 @@ def api_task_info(request):
         t_index = sorted(t_index)
         task_times = task_times.reindex(t_index, fill_value=0)
 
-    res["time_count"] = []
-    for k, v in task_times.items():
-        res["time_count"].append({"time": k, "count": v})
+    # res["time_count"] = {}
+    # for k, v in task_times.items():
+    #     res["time_count"].append({"time": k, "count": v})
+    res["time_count"] = {
+        "key": task_times.index.to_list(),
+        "counts": task_times.to_list(),
+    }
     # 总的预测次数
     res["all_count"] = len(tasks)
     # 统计超过了多少的用户
@@ -747,8 +759,13 @@ def api_record_info(request):
         start_time = datetime.strptime(start_time, "%Y-%m-%d")
         for i in range(10 - shape):
             count_by_time[(start_time - timedelta(days=i + 1)).strftime("%Y-%m-%d")] = 0
-    count_by_time = [{"time": k, "count": v} for k, v in count_by_time.items()]
-    count_by_time = sorted(count_by_time, key=lambda x: x["time"])
+    count_by_time = pd.Series(count_by_time).sort_index()
+    # count_by_time = [{"time": k, "count": v} for k, v in count_by_time.items()]
+    # count_by_time = sorted(count_by_time, key=lambda x: x["time"])
+    count_by_time = {
+        "time": count_by_time.index.to_list(),
+        "counts": count_by_time.to_list(),
+    }
     res["count_by_time"] = count_by_time
     # 统计不同时间的 result 的分布
     count_result_by_time = {}
@@ -765,7 +782,13 @@ def api_record_info(request):
         start_time = datetime.strptime(start_time, "%Y-%m-%d")
         for i in range(10 - shape):
             count_result_by_time[(start_time - timedelta(days=i + 1)).strftime("%Y-%m-%d")] = {"-1": 0, "0": 0, "1": 0}
-    res["count_res_by_time"] = count_result_by_time
+    count_result_by_time = pd.DataFrame(count_result_by_time).T.sort_index()
+    res["count_res_by_time"] = {
+        "key": count_result_by_time.index.to_list(),
+        "decrease": count_result_by_time.loc[:, "-1"].to_list(),
+        "noeffect": count_result_by_time.loc[:, "0"].to_list(),
+        "increase": count_result_by_time.loc[:, "1"].to_list(),
+    }
 
     # 统计全局数据
     # 结果的分布
@@ -775,7 +798,10 @@ def api_record_info(request):
     records = [model_to_dict(r) for r in records]
     records = pd.DataFrame(records)
     solubility_distribution = records["solubility"].value_counts().reindex(["-1", "0", "1"], fill_value=0)
-    res["solubility_distribution"] = solubility_distribution.to_dict()
+    # res["solubility_distribution"] = solubility_distribution.to_dict()
+    res["solubility_distribution"] = [{"name": k, "value":v} for k, v in solubility_distribution.to_dict().items()]
+
+
 
     valid_aa = records["aa"][records["solubility"].isin(["-1", "0", "1"])]
     valid_aa = pd.DataFrame(valid_aa)

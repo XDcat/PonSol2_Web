@@ -64,8 +64,8 @@ urlpatterns = [
     path("accounts/setting/", views.personal_information, name='account-setting'),
     path("accounts/dashboard/", views.dashboard, name="dashboard"),
     # dashboard 的 api
-    path("accounts/dashboard/api/count_predict", views.api_task_info, name="api-count-predict"),
-    path("accounts/dashboard/api/distribution_predict", views.api_record_info, name="api-distribution-predict"),
+    path("accounts/dashboard/api/task_info", views.api_task_info, name="api-task-info"),
+    path("accounts/dashboard/api/record_info", views.api_record_info, name="api-record-info"),
 
     # 注册 登录 退出登录
     path("accounts/register/", views.register, name='register'),

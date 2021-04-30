@@ -5,71 +5,74 @@
     <div class="page-header">
         <h1>Dashboard</h1>
     </div>
-    <div id="task_display">
-        <h3>You submitted 100 times totally! It is more than 70% of all users.</h3>
-        <div id="line_task_count"></div>
-        <div>
-            <div class="col-6">
-                <h4>Distribution of input type</h4>
+    <div id="task_display" class="row">
+        <h3>You submitted <span class="text-warning">100</span> times in total! It is more than <span
+                class="text-danger">70%</span> of all users.</h3>
+        <div id="line_task_count" class="col-md-12" style="height: 400px"></div>
+        <div class="col-lg-12">
+            <div class="col-lg-6">
                 <div class="row">
-                    <div id="pie_task_type" class="col-lg-6">asd</div>
-                    <div class="col-lg-6">
-                        <table class="table">
-                            <tr>
-                                <th>type</th>
-                                <th>count</th>
-                            </tr>
-                            <tr>
-                                <td>ID</td>
-                                <td>1</td>
-                            </tr>
-                            <tr>
-                                <td>Sequence</td>
-                                <td>1</td>
-                            </tr>
-                            <tr>
-                                <td>Protein</td>
-                                <td>1</td>
-                            </tr>
-                        </table>
-                    </div>
+                    <h4>Distribution of input type</h4>
+                    <div id="pie_task_type" class="" style="height: 200px;"></div>
+                    {#                    <div class="col-lg-4">#}
+                    {#                        <table class="table">#}
+                    {#                            <tr>#}
+                    {#                                <th>type</th>#}
+                    {#                                <th>count</th>#}
+                    {#                            </tr>#}
+                    {#                            <tr>#}
+                    {#                                <td>ID</td>#}
+                    {#                                <td>1</td>#}
+                    {#                            </tr>#}
+                    {#                            <tr>#}
+                    {#                                <td>Sequence</td>#}
+                    {#                                <td>1</td>#}
+                    {#                            </tr>#}
+                    {#                            <tr>#}
+                    {#                                <td>Protein</td>#}
+                    {#                                <td>1</td>#}
+                    {#                            </tr>#}
+                    {#                        </table>#}
+                    {#                    </div>#}
                 </div>
             </div>
-            <div class="col-6">
-                <div>Distribution of task status</div>
-                <div id="line_task_status"></div>
+            <div class="col-lg-6">
+                <h4>Distribution of task status</h4>
+                <div id="pie_task_status" style="height: 200px;"></div>
             </div>
         </div>
+
         <div id="record_display">
-            <div id="line_count_record"></div>
+            <h3><span class="text-warning">100</span> substitutions were submitted in total! </h3>
+            <div id="line_count_record" style="height: 300px;"></div>
             <div>
                 <div class="col-lg-6">
                     <div>Distribution of predict result</div>
                     <div class="row">
-                        <div class="col-lg-6" id="pie_task_result"></div>
-                        <div class="col-lg-6">
-                            <table class="table">
-                                <tr>
-                                    <th>type</th>
-                                    <th>count</th>
-                                </tr>
-                                <tr>
-                                    <td>ID</td>
-                                    <td>1</td>
-                                </tr>
-                                <tr>
-                                    <td>Sequence</td>
-                                    <td>1</td>
-                                </tr>
-                                <tr>
-                                    <td>Protein</td>
-                                    <td>1</td>
-                                </tr>
-                            </table>
-                        </div>
+                        <div class="" id="pie_task_result" style="height: 200px;"></div>
+                        {#                        <div class="col-lg-6">#}
+                        {#                            <table class="table">#}
+                        {#                                <tr>#}
+                        {#                                    <th>type</th>#}
+                        {#                                    <th>count</th>#}
+                        {#                                </tr>#}
+                        {#                                <tr>#}
+                        {#                                    <td>ID</td>#}
+                        {#                                    <td>1</td>#}
+                        {#                                </tr>#}
+                        {#                                <tr>#}
+                        {#                                    <td>Sequence</td>#}
+                        {#                                    <td>1</td>#}
+                        {#                                </tr>#}
+                        {#                                <tr>#}
+                        {#                                    <td>Protein</td>#}
+                        {#                                    <td>1</td>#}
+                        {#                                </tr>#}
+                        {#                            </table>#}
+                        {#                        </div>#}
                     </div>
                 </div>
-                <div class="col-lg-6" id="line_count_result"></div>
+                <div class="col-lg-6" id="line_count_result" style="height: 200px;"></div>
             </div>
 
             <div>
@@ -80,26 +83,185 @@
 
 
     </div>
-    <script type="text/javascript" src="{% static "ponsol2web/js/g2plot.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "ponsol2web/js/echart/echarts.min.js" %}"></script>
     <script>
-        const {Line} = G2Plot;
-        const data = [
-            {year: '1991', value: 3},
-            {year: '1992', value: 4},
-            {year: '1993', value: 3.5},
-            {year: '1994', value: 5},
-            {year: '1995', value: 4.9},
-            {year: '1996', value: 6},
-            {year: '1997', value: 7},
-            {year: '1998', value: 9},
-            {year: '1999', value: 13},
-        ];
-        const line = new Line("line-chart", {
-            data,
-            xField: "year",
-            yField: "value",
-        })
-        line.render();
+        fetch("{% url "ponsol2:api-task-info" %}")
+            .then(res => res.json())
+            .then(json => {
+                myChart = echarts.init(document.getElementById('line_task_count')).setOption({
+                    xAxis: {
+                        type: 'category',
+                        data: json.time_count.key
+                    },
+                    yAxis: {
+                        type: 'value'
+                    },
+                    series: [{
+                        data: json.time_count.counts,
+                        type: 'line',
+                        smooth: true,
+                    }]
+                });
+                // pie input type
+                echarts.init(document.getElementById("pie_task_type")).setOption({
+                    title: {
+                        {#text: '某站点用户访问来源',#}
+                        {#left: 'center'#}
+                    },
+                    tooltip: {
+                        trigger: 'item'
+                    },
+                    legend: {
+                        orient: 'vertical',
+                        left: 'left',
+                    },
+                    series: [
+                        {
+                            name: 'count',
+                            type: 'pie',
+                            radius: '50%',
+                            data: json.input_type_distribution,
+                            emphasis: {
+                                itemStyle: {
+                                    shadowBlur: 10,
+                                    shadowOffsetX: 0,
+                                    shadowColor: 'rgba(0, 0, 0, 0.5)'
+                                }
+                            }
+                        }
+                    ]
+                });
+
+                // pie input type
+                echarts.init(document.getElementById("pie_task_status")).setOption({
+                    title: {
+                        {#text: '某站点用户访问来源',#}
+                        {#left: 'center'#}
+                    },
+                    tooltip: {
+                        trigger: 'item'
+                    },
+                    legend: {
+                        orient: 'vertical',
+                        left: 'left',
+                    },
+                    series: [
+                        {
+                            name: 'count',
+                            type: 'pie',
+                            radius: '50%',
+                            data: json.status_distribution,
+                            emphasis: {
+                                itemStyle: {
+                                    shadowBlur: 10,
+                                    shadowOffsetX: 0,
+                                    shadowColor: 'rgba(0, 0, 0, 0.5)'
+                                }
+                            }
+                        }
+                    ]
+                });
+            });
+    </script>
+    <script>
+        fetch("{% url "ponsol2:api-record-info" %}")
+            .then(res => res.json())
+            .then(json => {
+                echarts.init(document.getElementById('line_count_record')).setOption({
+                    xAxis: {
+                        type: 'category',
+                        data: json.count_by_time.time
+                    },
+                    yAxis: {
+                        type: 'value'
+                    },
+                    series: [{
+                        data: json.count_by_time.counts,
+                        type: 'line',
+                        smooth: true,
+                    }]
+                });
+                // pie result
+                console.log(json.input_type_distribution)
+                echarts.init(document.getElementById("pie_task_result")).setOption({
+                    title: {
+                        {#text: '某站点用户访问来源',#}
+                        {#left: 'center'#}
+                    },
+                    tooltip: {
+                        trigger: 'item'
+                    },
+                    legend: {
+                        orient: 'vertical',
+                        left: 'left',
+                    },
+                    series: [
+                        {
+                            name: 'count',
+                            type: 'pie',
+                            radius: '50%',
+                            data: json.solubility_distribution,
+                            emphasis: {
+                                itemStyle: {
+                                    shadowBlur: 10,
+                                    shadowOffsetX: 0,
+                                    shadowColor: 'rgba(0, 0, 0, 0.5)'
+                                }
+                            }
+                        }
+                    ]
+                });
+                echarts.init(document.getElementById("line_count_result")).setOption({
+                    title: {
+                        text: '折线图堆叠'
+                    },
+                    tooltip: {
+                        trigger: 'axis'
+                    },
+                    legend: {
+                        data: ['邮件营销', '联盟广告', '视频广告', '直接访问', '搜索引擎']
+                    },
+                    grid: {
+                        left: '3%',
+                        right: '4%',
+                        bottom: '3%',
+                        containLabel: true
+                    },
+                    toolbox: {
+                        feature: {
+                            saveAsImage: {}
+                        }
+                    },
+                    xAxis: {
+                        type: 'category',
+                        boundaryGap: false,
+                        data: json.count_res_by_time.key,
+                    },
+                    yAxis: {
+                        type: 'value'
+                    },
+                    series: [
+                        {
+                            name: 'increase',
+                            type: 'line',
+                            stack: '总量',
+                            data: json.count_res_by_time.increase,
+                        },
+                        {
+                            name: 'have no effect',
+                            type: 'line',
+                            stack: '总量',
+                            data: json.count_res_by_time.noeffect,
+                        },
+                        {
+                            name: 'decrease',
+                            type: 'line',
+                            stack: '总量',
+                            data: json.count_res_by_time.decrease,
+                        },
+                    ]
+                });
+            });
     </script>
 {% endblock %}
 
