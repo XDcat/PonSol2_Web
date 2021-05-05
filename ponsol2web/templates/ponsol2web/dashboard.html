@@ -2,93 +2,74 @@
 {% load static %}
 {% block title %} Dashboard {% endblock %}
 {% block content %}
+    <style>
+        .chart {
+            box-shadow: darkgrey 1px 1px 5px 1px;
+            padding: 10px;
+        }
+
+        #task_display > div, #record_display > div {
+            padding: 10px;
+        }
+    </style>
+
     <div class="page-header">
-        <h1>Dashboard</h1>
     </div>
     <div id="task_display" class="row">
-        <h3>You submitted <span class="text-warning">100</span> times in total! It is more than <span
-                class="text-danger">70%</span> of all users.</h3>
-        <div id="line_task_count" class="col-md-12" style="height: 400px"></div>
+        <h1>Task Information</h1>
+        <h3><span class="text-warning" id="count_task">100</span> submissions in total! It is more than <span
+                class="text-danger" id="rate_task">70%</span> of all users.</h3>
         <div class="col-lg-12">
-            <div class="col-lg-6">
-                <div class="row">
-                    <h4>Distribution of input type</h4>
-                    <div id="pie_task_type" class="" style="height: 200px;"></div>
-                    {#                    <div class="col-lg-4">#}
-                    {#                        <table class="table">#}
-                    {#                            <tr>#}
-                    {#                                <th>type</th>#}
-                    {#                                <th>count</th>#}
-                    {#                            </tr>#}
-                    {#                            <tr>#}
-                    {#                                <td>ID</td>#}
-                    {#                                <td>1</td>#}
-                    {#                            </tr>#}
-                    {#                            <tr>#}
-                    {#                                <td>Sequence</td>#}
-                    {#                                <td>1</td>#}
-                    {#                            </tr>#}
-                    {#                            <tr>#}
-                    {#                                <td>Protein</td>#}
-                    {#                                <td>1</td>#}
-                    {#                            </tr>#}
-                    {#                        </table>#}
-                    {#                    </div>#}
-                </div>
-            </div>
-            <div class="col-lg-6">
-                <h4>Distribution of task status</h4>
-                <div id="pie_task_status" style="height: 200px;"></div>
+            <div id="line_task_count" class="chart" style="height: 400px"></div>
+        </div>
+        <div class="col-lg-6 col-md-6">
+            <h4>Distribution of input type</h4>
+            <div id="pie_task_type" class="chart" style="height: 200px;"></div>
+        </div>
+        <div class="col-lg-6 col-md-6">
+            <h4>Distribution of task status</h4>
+            <div id="pie_task_status" class="chart" style="height: 200px;"></div>
+        </div>
+    </div>
+    <div id="record_display" class="row">
+        <h1>Record Information</h1>
+        <h3><span class="text-warning" id="count_record">100</span> substitutions were submitted in total! </h3>
+        <div class="col-lg-12">
+            <div id="line_count_record" class="chart" style="height: 300px;"></div>
+        </div>
+        <div class="col-lg-6 col-md-6">
+            <h3>Distribution of predict result</h3>
+            <div class="chart" id="pie_task_result" style="height: 200px;"></div>
+        </div>
+        <div class="col-lg-6 col-md-6">
+            <h3>Number of predict result</h3>
+            <div class="chart" id="line_count_result" style="height: 200px;"></div>
+        </div>
+        <div class="col-lg-9">
+            <h3>Number of origin and mutation residues</h3>
+            <div class="chart" id="bar_aa" style="height: 400px;"></div>
+        </div>
+        <div class="col-lg-3">
+            <h3>Rank of substitution</h3>
+            <div class="chart" style="height: 400px; overflow: auto;">
+                <table class="table table-bordered" id="max_mutation">
+                </table>
             </div>
         </div>
-
-        <div id="record_display">
-            <h3><span class="text-warning">100</span> substitutions were submitted in total! </h3>
-            <div id="line_count_record" style="height: 300px;"></div>
-            <div>
-                <div class="col-lg-6">
-                    <div>Distribution of predict result</div>
-                    <div class="row">
-                        <div class="" id="pie_task_result" style="height: 200px;"></div>
-                        {#                        <div class="col-lg-6">#}
-                        {#                            <table class="table">#}
-                        {#                                <tr>#}
-                        {#                                    <th>type</th>#}
-                        {#                                    <th>count</th>#}
-                        {#                                </tr>#}
-                        {#                                <tr>#}
-                        {#                                    <td>ID</td>#}
-                        {#                                    <td>1</td>#}
-                        {#                                </tr>#}
-                        {#                                <tr>#}
-                        {#                                    <td>Sequence</td>#}
-                        {#                                    <td>1</td>#}
-                        {#                                </tr>#}
-                        {#                                <tr>#}
-                        {#                                    <td>Protein</td>#}
-                        {#                                    <td>1</td>#}
-                        {#                                </tr>#}
-                        {#                            </table>#}
-                        {#                        </div>#}
-                    </div>
-                </div>
-                <div class="col-lg-6" id="line_count_result" style="height: 200px;"></div>
-            </div>
-
-            <div>
-                <div class="col-lg-9" id="bar_aa"></div>
-                <div class="col-lg-3"></div>
-            </div>
-        </div>
-
-
     </div>
     <script type="text/javascript" src="{% static "ponsol2web/js/echart/echarts.min.js" %}"></script>
     <script>
         fetch("{% url "ponsol2:api-task-info" %}")
             .then(res => res.json())
             .then(json => {
+                // 动态数据
+                document.getElementById("count_task").innerText= json.all_count;
+                document.getElementById("rate_task").innerText= json.rate_count;
+
                 myChart = echarts.init(document.getElementById('line_task_count')).setOption({
+                    title :{
+                        text: "Number of submissions"
+                    },
                     xAxis: {
                         type: 'category',
                         data: json.time_count.key
@@ -167,7 +148,22 @@
         fetch("{% url "ponsol2:api-record-info" %}")
             .then(res => res.json())
             .then(json => {
+                //创建表格
+                var table = document.getElementById("max_mutation");
+                var tab = " <tr> <th>substitution</th> <th>times</th> </tr>"
+                //动态数据
+                document.getElementById("count_record").innerText = json.count_record;
+
+                console.log(json.max_aa)
+                for (let i = 0, len = json.max_aa.length; i < len; i++) {
+                    tab += "<tr><td>" + json.max_aa[i][0] + "</td><td>" + json.max_aa[i][1] + "</td></tr>";
+                }
+                table.innerHTML = tab;
+
                 echarts.init(document.getElementById('line_count_record')).setOption({
+                    title :{
+                        text: "Number of substitutions"
+                    },
                     xAxis: {
                         type: 'category',
                         data: json.count_by_time.time
@@ -182,7 +178,6 @@
                     }]
                 });
                 // pie result
-                console.log(json.input_type_distribution)
                 echarts.init(document.getElementById("pie_task_result")).setOption({
                     title: {
                         {#text: '某站点用户访问来源',#}
@@ -213,7 +208,7 @@
                 });
                 echarts.init(document.getElementById("line_count_result")).setOption({
                     title: {
-                        text: '折线图堆叠'
+                        text: ''
                     },
                     tooltip: {
                         trigger: 'axis'
@@ -223,8 +218,9 @@
                     },
                     grid: {
                         left: '3%',
-                        right: '4%',
+                        right: '6%',
                         bottom: '3%',
+                        top: "6%",
                         containLabel: true
                     },
                     toolbox: {
@@ -242,12 +238,6 @@
                     },
                     series: [
                         {
-                            name: 'increase',
-                            type: 'line',
-                            stack: '总量',
-                            data: json.count_res_by_time.increase,
-                        },
-                        {
                             name: 'have no effect',
                             type: 'line',
                             stack: '总量',
@@ -259,9 +249,30 @@
                             stack: '总量',
                             data: json.count_res_by_time.decrease,
                         },
+                        {
+                            name: 'increase',
+                            type: 'line',
+                            stack: '总量',
+                            data: json.count_res_by_time.increase,
+                        },
+                    ]
+                });
+                echarts.init(document.getElementById("bar_aa")).setOption({
+                    legend: {},
+                    tooltip: {},
+                    dataset: {
+                        source: json.count_a,
+                    },
+                    xAxis: {type: 'category'},
+                    yAxis: {},
+                    // Declare several bar series, each will be mapped
+                    // to a column of dataset.source by default.
+                    series: [
+                        {type: 'bar'},
+                        {type: 'bar'},
                     ]
                 });
             });
-    </script>
+    </SCRIPT>
 {% endblock %}
 

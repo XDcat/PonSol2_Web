@@ -212,6 +212,9 @@ def predict_protein(request):
         input_id_type = request.POST.get("type", None)
         # create task
         task = Task.objects.create(ip=ip, mail=mail, status="running", input_type="protein")
+        if request.user.is_authenticated:
+            user = request.user
+            task.user_id = user.id
         task.save()
         log.debug("creat task, id = %s", task.id)
         # check seq and aa
@@ -702,10 +705,12 @@ def api_task_info(request):
     if task_times.shape[0] < 10:
         t_index = list(task_times.index)
         shape = task_times.shape[0]
-        start_time = task_times.index[0]
+        start_time = task_times.index[-1]
         start_time = datetime.strptime(start_time, "%Y-%m-%d", )
-        for i in range(10 - shape):
-            t_index.append((start_time - timedelta(days=i + 1)).strftime("%Y-%m-%d"))
+        for i in range(10 - 1):
+            t = (start_time - timedelta(days=i + 1)).strftime("%Y-%m-%d")
+            if t not in t_index:
+                t_index.append(t)
         t_index = sorted(t_index)
         task_times = task_times.reindex(t_index, fill_value=0)
 
@@ -727,7 +732,7 @@ def api_task_info(request):
     users_count = sorted(users_count)
     bt = 0
     for i in users_count:
-        if i >= res["all_count"]:
+        if i > res["all_count"]:
             break
         bt += 1
     log.debug(f"bt={bt}, users_count={users_count}")
@@ -753,6 +758,7 @@ def api_record_info(request):
         t = i.start_time.strftime("%Y-%m-%d")
         records_group_time[t] = records_group_time.get(t, []) + list(i.record_set.all())
     count_by_time = {k: len(v) for k, v in records_group_time.items()}
+    res["count_record"] = sum([len(i) for i in records_group_time.values()])
     if len(count_by_time) < 10:
         shape = len(count_by_time)
         start_time = sorted(count_by_time.keys())[0]
@@ -798,11 +804,9 @@ def api_record_info(request):
     records = [model_to_dict(r) for r in records]
     records = pd.DataFrame(records)
     solubility_distribution = records["solubility"].value_counts().reindex(["-1", "0", "1"], fill_value=0)
+    solubility_distribution = solubility_distribution.rename(index={k: v for k, v in Record.SOLUBILITY_CHANGE})
     # res["solubility_distribution"] = solubility_distribution.to_dict()
-    res["solubility_distribution"] = [{"name": k, "value":v} for k, v in solubility_distribution.to_dict().items()]
-
-
-
+    res["solubility_distribution"] = [{"name": k, "value": v} for k, v in solubility_distribution.to_dict().items()]
     valid_aa = records["aa"][records["solubility"].isin(["-1", "0", "1"])]
     valid_aa = pd.DataFrame(valid_aa)
     valid_aa["start"] = valid_aa["aa"].str[0]
@@ -814,10 +818,15 @@ def api_record_info(request):
             valid_aa["end"].value_counts()
         ], axis=1
     ).reindex(index=A_LIST, ).fillna(0)
+    # valid_aa_count_a = valid_aa_count_a.T
 
     # res["aa"] = valid_aa.to_dict()
-    res["count_a"] = valid_aa_count_a.to_dict()
-    res["max_aa"] = valid_aa["aa"].value_counts().sort_values(ascending=False).to_dict()
+    bar_value = [["product", "origin", "mutation"], ]
+    for i, row in valid_aa_count_a.iterrows():
+        bar_value.append([i, ] + list(row.values))
+    res["count_a"] = bar_value
+
+    res["max_aa"] = valid_aa["aa"].value_counts().sort_values(ascending=False).reset_index().values.tolist()[:8]
 
     # res["detail"] = records.to_dict()
 
