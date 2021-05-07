@@ -47,7 +47,7 @@ default_config = {
             "class": "logging.handlers.RotatingFileHandler",
             "formatter": "default",
             "level": "INFO",
-            "filename": "ponsol2_predictor_debug.log",  # 必选, 文件名称
+            "filename": "ponsol2_predictor_info.log",  # 必选, 文件名称
             "encoding": "utf8",
             "maxBytes": 10485760,  # 日志文件最大个数 1024B * 1024 * 10 = 10MB
             "backupCount": 10,  # 日志文件最大个数

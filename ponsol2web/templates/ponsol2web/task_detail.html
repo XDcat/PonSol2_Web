@@ -22,11 +22,10 @@
                         {% endif %}
                     </div>
                 {% elif task.status == "finished" %}
-                    <div class="" role="alert"><strong>Finished!</strong> This task(id={{ task.id }}) is finished, and
-                        the result is the
-                        followed.
+                    <div class="" role="alert"><strong>Finished!</strong> This task(id={{ task.id }}) is finished,
+                        the results are as follows.
                         {% if task.mail %}
-                            The result will be sent to
+                            The results are also sent as e-mail to
                             <ins>{{ task.mail }}</ins>.
                         {% endif %}
 {#                        Running time is from {{ task.start_time }} to {{ task.finish_time }}#}
@@ -61,7 +60,7 @@
                         <tr class="row">
                             <th class="col-md-1">#</th>
                             <th class="col-md-3 ">Variation</th>
-                            <th class="col-md-3 ">Predict result</th>
+                            <th class="col-md-3 ">Prediction result</th>
                             <th class="col-md-5 ">Remark</th>
                         </tr>
                         {% for record in record_list %}
