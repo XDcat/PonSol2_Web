@@ -18,6 +18,7 @@ from django.urls import path, include
 from django.views.generic import RedirectView
 
 urlpatterns = [
-    path("", include("ponsol2web.urls")),
-    path('zlj/admin/', admin.site.urls),
+    path("", RedirectView.as_view(url="/PON-SOl2")),
+    path('PON-SOl2/zlj/admin/', admin.site.urls),
+    path("PON-SOl2/", include("ponsol2web.urls")),
 ]
