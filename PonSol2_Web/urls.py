@@ -16,9 +16,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import RedirectView
+from ponsol2web import views
 
 urlpatterns = [
-    path("", RedirectView.as_view(url="/PON-SOl2")),
-    path('PON-SOl2/zlj/admin/', admin.site.urls),
-    path("PON-SOl2/", include("ponsol2web.urls")),
+    path("", RedirectView.as_view(url="PON-Sol2/")),
+    path('PON-Sol2/zlj/admin/', admin.site.urls),
+    path("PON-Sol2/", include("ponsol2web.urls")),
 ]
