@@ -86,12 +86,12 @@ DATABASES = {
             'NAME': 'mytestdatabase',
         },
     },
-    "mysql": {
-        'ENGINE': 'django.db.backends.mysql',
-        "OPTIONS": {
-            'read_default_file': DATABASE_CONFIG_PATH
-        },
-    },
+#     "mysql": {
+#         'ENGINE': 'django.db.backends.mysql',
+#         "OPTIONS": {
+#             'read_default_file': DATABASE_CONFIG_PATH
+#         },
+#     },
 }
 
 # Password validation
