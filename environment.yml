@@ -16,3 +16,4 @@ scikit-learn==0.22.2.post1
 sqlparse==0.4.1
 xgboost==1.1.1
 mygene
+pdfkit
