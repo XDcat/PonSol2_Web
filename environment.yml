@@ -1,31 +1,18 @@
-name: Ponsol_Web
-channels:
-  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/
-  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
-  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/conda-forge/
-  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/pytorch/
-  - defaults
-dependencies:
-  - pip
-  - matplotlib
-  - pandas
-  - numpy
-  - requests
-  - python==3.7.7
-  - pip:
-    - asgiref==3.3.1
-    - django==3.1.5
-    - imbalanced-learn==0.6.2
-    - joblib==0.14.1
-    - jupyter-contrib-core==0.3.3
-    - jupyter-contrib-nbextensions==0.5.1
-    - jupyter-highlight-selected-word==0.2.0
-    - jupyter-latex-envs==1.4.6
-    - jupyter-nbextensions-configurator==0.4.1
-    - lightgbm==2.3.1
-    - mysqlclient==2.0.3
-    - pip==20.1
-    - scikit-learn==0.22.2.post1
-    - sqlparse==0.4.1
-    - xgboost==1.1.1
-    - mygene
+matplotlib
+pandas
+numpy
+requests
+asgiref==3.3.1
+django==3.1.5
+imbalanced-learn==0.6.2
+joblib==0.14.1
+jupyter-contrib-core==0.3.3
+jupyter-contrib-nbextensions==0.5.1
+jupyter-highlight-selected-word==0.2.0
+jupyter-latex-envs==1.4.6
+jupyter-nbextensions-configurator==0.4.1
+lightgbm==2.3.1
+scikit-learn==0.22.2.post1
+sqlparse==0.4.1
+xgboost==1.1.1
+mygene
